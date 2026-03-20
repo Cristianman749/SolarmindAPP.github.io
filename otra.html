@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SolarMind — Energía Solar Inteligente</title>
+<style>
+/* ============================================================
+   VARIABLES & RESET
+============================================================ */
+:root {
+  --sol: #fbbf24; --sol-d: #f59e0b; --or: #f97316; --or-d: #ea580c;
+  --dark: #1e1e2e; --dark2: #2a2a40; --bg: #fff8e1; --white: #fff;
+  --gray: #666; --light: #f5f5f5; --border: #f0e8d0;
+  --green: #10b981; --blue: #3b82f6; --red: #ef4444;
+  --r: 16px; --sh: 0 4px 24px rgba(0,0,0,.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:16px;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#1a1a1a;overflow-x:hidden;transition:background .3s,color .3s;}
+body.dark{background:#0f0f1a;color:#e8e8f0;}
+body.dark .card,body.dark .pc,body.dark .ec,body.dark .cart-summary,
+body.dark .snav,body.dark .scont,body.dark .e-chart-box,body.dark .apt-box,
+body.dark .store-top,body.dark .gauge-card,body.dark .adv-card,body.dark .plan,
+body.dark .vision-card,body.dark .cf,body.dark .cart-item{background:#1a1a2e;border-color:#2a2a4e;color:#e8e8f0;}
+body.dark header{background:rgba(10,10,20,.97);}
+body.dark .ods-wrap{background:#1a1a2e;}
+body.dark .fg input,body.dark .fg textarea,body.dark .fg select{background:#1a1a2e;border-color:#2a2a4e;color:#e8e8f0;}
+
+/* ============================================================
+   ANIMATED BACKGROUND
+============================================================ */
+#animBg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);animation:blobMove 25s infinite ease-in-out;}
+.b1{width:650px;height:650px;background:rgba(251,191,36,.35);top:-280px;left:-280px;}
+.b2{width:750px;height:750px;background:rgba(249,115,22,.22);bottom:-320px;right:-320px;animation-delay:-9s;}
+.b3{width:500px;height:500px;background:rgba(234,88,12,.28);top:42%;left:32%;animation-delay:-17s;}
+@keyframes blobMove{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(65px,-45px) scale(1.12);}
+  66%{transform:translate(-45px,55px) scale(0.88);}
+}
+.particle{position:absolute;border-radius:50%;background:rgba(251,191,36,.65);animation:pfl 7s infinite ease-in-out;}
+@keyframes pfl{0%,100%{transform:translateY(0) rotate(0deg);opacity:.2;}50%{transform:translateY(-50px) rotate(200deg);opacity:.85;}}
+
+/* ============================================================
+   HEADER
+============================================================ */
+header{background:rgba(30,30,46,.97);backdrop-filter:blur(14px);color:#fff;padding:.9rem 2rem;position:sticky;top:0;z-index:500;border-bottom:1px solid rgba(255,255,255,.07);}
+.hdr{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+.logo{display:flex;align-items:center;gap:.75rem;cursor:pointer;text-decoration:none;}
+.logo-ico{width:48px;height:48px;background:linear-gradient(135deg,#fbbf24,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 0 24px rgba(251,191,36,.55);animation:logoPulse 3s infinite;}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 24px rgba(251,191,36,.55);}50%{box-shadow:0 0 42px rgba(251,191,36,.95);}}
+.logo-txt h1{font-size:1.35rem;color:#fbbf24;letter-spacing:-.5px;font-weight:800;}
+.logo-txt p{font-size:.62rem;color:#777;}
+nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.nb{padding:.5rem 1.1rem;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,.65);cursor:pointer;font-size:.87rem;transition:all .25s;display:flex;align-items:center;gap:6px;font-family:inherit;}
+.nb:hover{color:#fbbf24;background:rgba(251,191,36,.1);}
+.nb.on{background:#fbbf24;color:#1a1a1a;font-weight:700;}
+.nb.red{color:#ff6b6b;}.nb.red:hover{background:rgba(255,107,107,.12);}
+.cbadge{background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;padding:1px 6px;font-weight:800;animation:popIn .3s ease;}
+@keyframes popIn{from{transform:scale(0);}to{transform:scale(1);}}
+
+/* ============================================================
+   MOBILE NAV
+============================================================ */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(30,30,46,.97);z-index:500;padding:.65rem;gap:.2rem;border-top:1px solid rgba(255,255,255,.08);backdrop-filter:blur(14px);}
+.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:.45rem .2rem;border-radius:9px;border:none;background:transparent;cursor:pointer;color:rgba(255,255,255,.5);font-size:.6rem;transition:all .2s;font-family:inherit;font-weight:500;}
+.mn-btn .mi{font-size:1.25rem;}.mn-btn.on{color:#fbbf24;background:rgba(251,191,36,.12);}
+
+/* ============================================================
+   PAGES
+============================================================ */
+.pg{display:none;min-height:calc(100vh - 70px);animation:pgIn .4s ease-out;}
+.pg.on{display:block;}
+@keyframes pgIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero{background:linear-gradient(135deg,#fbbf24 0%,#f97316 52%,#ea580c 100%);color:#fff;padding:6rem 2rem 5rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.1);filter:blur(70px);pointer-events:none;}
+.hero::before{width:450px;height:450px;top:-200px;left:-180px;}
+.hero::after{width:350px;height:350px;bottom:-120px;right:-100px;}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.2);padding:.45rem 1.1rem;border-radius:999px;font-size:.85rem;font-weight:600;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,.3);}
+.hero h1{font-size:3.6rem;font-weight:900;margin-bottom:1.2rem;text-shadow:0 3px 20px rgba(0,0,0,.2);animation:heroIn .9s ease-out;}
+.hero .sub{font-size:1.2rem;opacity:.92;margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto;animation:heroIn .9s .2s ease-out backwards;}
+@keyframes heroIn{from{opacity:0;transform:translateY(45px);}to{opacity:1;transform:translateY(0);}}
+.hero-stats{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;animation:heroIn .9s .4s ease-out backwards;}
+.hstat{background:rgba(255,255,255,.18);backdrop-filter:blur(14px);padding:1.6rem 2rem;border-radius:20px;border:1px solid rgba(255,255,255,.3);cursor:default;transition:transform .3s;}
+.hstat:hover{transform:translateY(-7px) scale(1.04);}
+.hstat h3{font-size:2.6rem;font-weight:900;margin-bottom:.35rem;}
+.hstat p{font-size:.88rem;opacity:.85;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2.5rem;animation:heroIn .9s .6s ease-out backwards;}
+.hero-cta{padding:1.1rem 2.6rem;background:#fff;color:#f97316;border:none;border-radius:999px;font-size:1.05rem;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2);transition:all .3s;}
+.hero-cta:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 40px rgba(0,0,0,.25);}
+.hero-cta.outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.7);}
+.hero-cta.outline:hover{background:rgba(255,255,255,.15);}
+
+/* ============================================================
+   SECTIONS
+============================================================ */
+.sec{max-width:1400px;margin:5rem auto;padding:0 2rem;}
+.sh{text-align:center;margin-bottom:3.5rem;}
+.sh h2{font-size:2.7rem;font-weight:800;margin-bottom:.75rem;line-height:1.2;}
+.sh p{color:var(--gray);font-size:1.05rem;max-width:600px;margin:0 auto;}
+.hl{color:#f97316;}
+
+/* ============================================================
+   VISION CARDS
+============================================================ */
+.vision-card{background:#fff;border-radius:22px;overflow:hidden;box-shadow:var(--sh);transition:all .38s;border:1px solid var(--border);}
+.vision-card:hover{transform:translateY(-12px) scale(1.01);box-shadow:0 18px 55px rgba(0,0,0,.13);}
+.vision-card img{width:100%;height:205px;object-fit:cover;transition:transform .55s;}
+.vision-card:hover img{transform:scale(1.08);}
+.vcb{padding:1.75rem;}
+.vcb-ico{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.65rem;margin-bottom:1rem;}
+.vcb h3{font-size:1.4rem;font-weight:700;margin-bottom:.75rem;}
+.vcb p{color:var(--gray);line-height:1.75;font-size:.93rem;}
+
+/* ============================================================
+   COMMUNITY
+============================================================ */
+.community{background:linear-gradient(135deg,#1e1e2e,#2a2a40);padding:6rem 2rem;}
+.comm-inner{max-width:1400px;margin:0 auto;}
+.community h2{text-align:center;color:#fff;font-size:2.7rem;font-weight:800;margin-bottom:.75rem;}
+.community .sub{text-align:center;color:rgba(255,255,255,.62);margin-bottom:3rem;font-size:1.02rem;}
+.comm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:1.5rem;}
+.comm-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:2.25rem;text-align:center;color:#fff;transition:all .3s;cursor:default;}
+.comm-card:hover{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.45);transform:translateY(-7px);}
+.comm-ico{font-size:2.8rem;margin-bottom:1rem;}
+.comm-card h3{font-size:2.2rem;color:#fbbf24;font-weight:900;margin-bottom:.4rem;}
+.comm-card p{font-size:.83rem;color:rgba(255,255,255,.58);}
+
+/* ============================================================
+   ODS7
+============================================================ */
+.ods-wrap{background:#fff;padding:6rem 2rem;}
+.ods-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+.ods-badge{display:inline-flex;align-items:center;gap:.4rem;background:#fbbf24;color:#1a1a1a;font-weight:800;padding:.45rem 1.1rem;border-radius:999px;margin-bottom:1.25rem;font-size:.9rem;}
+.ods-text h2{font-size:2.6rem;font-weight:800;margin-bottom:1.5rem;line-height:1.25;}
+.ods-text p{color:#555;line-height:1.88;margin-bottom:1rem;font-size:.95rem;}
+.ods-img-wrap{border-radius:22px;overflow:hidden;position:relative;box-shadow:0 14px 45px rgba(0,0,0,.16);}
+.ods-img-wrap img{width:100%;height:290px;object-fit:cover;}
+.ods-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72),transparent);display:flex;flex-direction:column;justify-content:flex-end;padding:2rem;}
+.ods-overlay h3{color:#fbbf24;font-size:2.5rem;font-weight:900;}
+.ods-overlay p{color:rgba(255,255,255,.85);font-size:.95rem;}
+.ods-sg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.75rem;}
+.ods-stat{background:linear-gradient(135deg,#fff8e1,#fffbeb);border-radius:14px;padding:1.3rem;text-align:center;border:1px solid #fde68a;}
+.ods-stat .n{font-size:1.9rem;font-weight:900;color:#f97316;}
+.ods-stat .l{font-size:.74rem;color:#888;margin-top:.25rem;}
+
+/* ============================================================
+   ADVISORS
+============================================================ */
+.adv-card{background:#fff;border-radius:22px;padding:2.5rem;text-align:center;box-shadow:var(--sh);border:1px solid var(--border);transition:all .3s;}
+.adv-card:hover{transform:translateY(-8px);box-shadow:0 14px 45px rgba(0,0,0,.12);}
+.adv-av{width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 1.25rem;border:3px solid #fbbf24;box-shadow:0 0 0 6px rgba(251,191,36,.15);}
+.adv-nm{font-size:1.2rem;font-weight:700;margin-bottom:.35rem;}
+.adv-rl{color:#f97316;font-size:.85rem;font-weight:700;margin-bottom:.9rem;}
+.adv-bio{color:var(--gray);font-size:.85rem;line-height:1.65;}
+.stars{color:#fbbf24;font-size:1.05rem;margin-top:.75rem;letter-spacing:2px;}
+.adv-tag{display:inline-block;background:#fff8e1;color:#f97316;font-size:.72rem;padding:.2rem .75rem;border-radius:999px;margin:.5rem .2rem 0;border:1px solid #fbbf24;font-weight:600;}
+
+/* ============================================================
+   CONTACT
+============================================================ */
+.contact-box{background:#1e1e2e;border-radius:28px;padding:4.5rem;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;max-width:1100px;margin:0 auto;}
+.ci h2{color:#fbbf24;font-size:2rem;font-weight:800;margin-bottom:2rem;}
+.ci-item{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.75rem;background:rgba(255,255,255,.05);padding:1.25rem;border-radius:14px;transition:background .3s;}
+.ci-item:hover{background:rgba(255,255,255,.09);}
+.ci-ico{width:46px;height:46px;background:rgba(251,191,36,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.ci-txt strong{color:#fff;display:block;margin-bottom:.3rem;}
+.ci-txt span{color:#aaa;font-size:.87rem;line-height:1.5;}
+.cf{background:#fff;padding:2.75rem;border-radius:20px;}
+.cf h3{font-size:1.6rem;font-weight:700;margin-bottom:2rem;}
+
+/* ============================================================
+   FORMS
+============================================================ */
+.fg{margin-bottom:1.25rem;}
+.fg label{display:block;margin-bottom:.45rem;font-weight:600;font-size:.87rem;color:#444;}
+.fg input,.fg textarea,.fg select{width:100%;padding:.8rem 1.1rem;border:2px solid #eee;border-radius:11px;font-size:.95rem;transition:all .3s;font-family:inherit;background:#fafafa;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:#fbbf24;background:#fff;box-shadow:0 0 0 4px rgba(251,191,36,.12);}
+.fg textarea{resize:vertical;min-height:110px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn{padding:.8rem 1.75rem;border-radius:11px;border:none;cursor:pointer;font-size:.95rem;font-weight:700;transition:all .25s;display:inline-flex;align-items:center;gap:7px;font-family:inherit;}
+.btn-p{background:#fbbf24;color:#1a1a1a;}.btn-p:hover{background:#f59e0b;transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,191,36,.4);}
+.btn-s{background:#e5e7eb;color:#1a1a1a;}.btn-s:hover{background:#d1d5db;}
+.btn-d{background:#ef4444;color:#fff;}.btn-d:hover{background:#dc2626;}
+.btn-o{background:transparent;border:2px solid #fbbf24;color:#f97316;}.btn-o:hover{background:#fbbf24;color:#1a1a1a;}
+.btn-full{width:100%;justify-content:center;padding:1rem;}
+.btn-lg{padding:1.1rem 2.5rem;font-size:1rem;}
+.mt1{margin-top:1rem;}.mt2{margin-top:2rem;}
+
+/* ============================================================
+   STORE
+============================================================ */
+.store-top{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;padding:1.75rem;background:#fff;border-radius:18px;box-shadow:var(--sh);margin-bottom:2rem;}
+.srch{padding:.75rem 1.25rem;border:2px solid #eee;border-radius:12px;font-size:.95rem;width:280px;transition:border .3s;font-family:inherit;}
+.srch:focus{outline:none;border-color:#fbbf24;}
+.filters{display:flex;gap:.6rem;flex-wrap:wrap;}
+.fb{padding:.5rem 1.25rem;border-radius:999px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:.86rem;transition:all .25s;font-weight:500;font-family:inherit;}
+.fb.on{background:#fbbf24;border-color:#fbbf24;color:#1a1a1a;font-weight:700;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:2rem;}
+.pc{background:#fff;border-radius:20px;overflow:hidden;box-shadow:var(--sh);transition:all .32s;border:1px solid var(--border);}
+.pc:hover{transform:translateY(-8px);box-shadow:0 16px 48px rgba(0,0,0,.12);}
+.pc img{width:100%;height:210px;object-fit:cover;transition:transform .55s;}
+.pc:hover img{transform:scale(1.07);}
+.pc-body{padding:1.5rem;}
+.pc-badge{display:inline-block;background:#fff8e1;color:#f97316;font-size:.72rem;padding:.22rem .8rem;border-radius:999px;margin-bottom:.75rem;font-weight:700;border:1px solid #fbbf24;}
+.pc h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
+.pc .pdesc{color:var(--gray);font-size:.83rem;margin-bottom:1rem;line-height:1.55;}
+.pc-price{color:#f97316;font-size:1.55rem;font-weight:900;margin-bottom:.75rem;}
+.pc-price small{font-size:.74rem;color:#bbb;font-weight:400;}
+.pc-stars{color:#fbbf24;font-size:.85rem;margin-bottom:.75rem;}
+.pc-specs{font-size:.78rem;color:#888;margin-bottom:1rem;padding:.6rem;background:#f9f9f9;border-radius:8px;}
+
+/* ============================================================
+   ROI CALCULATOR
+============================================================ */
+.roi-box{background:linear-gradient(135deg,#1e1e2e,#2a2a40);border-radius:26px;padding:3.5rem;color:#fff;margin-top:3rem;}
+.roi-box h2{font-size:2.2rem;color:#fbbf24;text-align:center;margin-bottom:2.5rem;font-weight:800;}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;}
+.rg{margin-bottom:2rem;}
+.rg label{display:flex;justify-content:space-between;margin-bottom:.65rem;font-size:.9rem;color:rgba(255,255,255,.8);}
+.rg label span{color:#fbbf24;font-weight:700;font-size:.98rem;}
+input[type=range]{width:100%;accent-color:#fbbf24;cursor:pointer;height:5px;border-radius:999px;}
+.roi-result{background:rgba(255,255,255,.07);border-radius:18px;padding:2rem;border:1px solid rgba(255,255,255,.1);}
+.roi-result h3{color:#fbbf24;margin-bottom:1.5rem;font-size:1.15rem;font-weight:700;}
+.rm{display:flex;justify-content:space-between;align-items:center;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.07);}
+.rm:last-child{border:none;}
+.rm .rl{color:rgba(255,255,255,.65);font-size:.88rem;}
+.rm .rv{font-weight:700;font-size:.98rem;}
+.rv.g{color:#4ade80;}.rv.y{color:#fbbf24;}.rv.w{color:#fff;}
+
+/* ============================================================
+   PLANS
+============================================================ */
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;}
+.plan{background:#fff;border-radius:24px;padding:2.75rem;box-shadow:var(--sh);border:2px solid transparent;transition:all .3s;position:relative;}
+.plan:hover{border-color:#fbbf24;transform:translateY(-8px);}
+.plan.feat{border-color:#fbbf24;background:linear-gradient(135deg,#fffbeb,#fff8e1);}
+.plan-pop{position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#fbbf24,#f97316);color:#1a1a1a;font-size:.74rem;padding:.3rem 1.1rem;border-radius:999px;font-weight:800;white-space:nowrap;box-shadow:0 4px 12px rgba(251,191,36,.4);}
+.plan-ico{font-size:3.5rem;margin-bottom:1rem;}
+.plan h3{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.plan .pd{color:#777;font-size:.9rem;margin-bottom:1.25rem;}
+.plan-price{font-size:2.4rem;font-weight:900;color:#f97316;margin-bottom:1.5rem;}
+.plan-price small{font-size:.8rem;color:#aaa;font-weight:400;}
+.plan-feats{list-style:none;margin-bottom:2rem;}
+.plan-feats li{display:flex;align-items:center;gap:.5rem;padding:.5rem 0;font-size:.9rem;color:#555;border-bottom:1px dashed #eee;}
+.plan-feats li:last-child{border:none;}
+
+/* ============================================================
+   APPOINTMENTS
+============================================================ */
+.apt-box{background:#fff;border-radius:26px;padding:3rem;box-shadow:var(--sh);}
+.apt-steps{display:flex;gap:1rem;margin-bottom:2.5rem;flex-wrap:wrap;}
+.as{flex:1;min-width:110px;text-align:center;padding:1rem;border-radius:14px;border:2px solid #e5e7eb;background:#fff;transition:all .3s;}
+.as.done{background:#dcfce7;border-color:#4ade80;}
+.as.active{background:#fff8e1;border-color:#fbbf24;}
+.as-n{width:34px;height:34px;background:#e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto .5rem;font-size:.85rem;}
+.as.done .as-n{background:#4ade80;color:#fff;}
+.as.active .as-n{background:#fbbf24;color:#1a1a1a;}
+.as p{font-size:.78rem;color:#777;font-weight:500;}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;}
+.svc{padding:1.5rem 1rem;border-radius:14px;border:2px solid #e5e7eb;text-align:center;cursor:pointer;transition:all .25s;background:#fafafa;}
+.svc:hover,.svc.on{border-color:#fbbf24;background:#fffbeb;transform:translateY(-4px);}
+.svc-ico{font-size:2.2rem;margin-bottom:.5rem;}
+.svc p{font-size:.87rem;font-weight:600;}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.75rem;}
+.slot{padding:.8rem;border-radius:10px;border:2px solid #e5e7eb;text-align:center;cursor:pointer;font-size:.9rem;transition:all .25s;background:#fff;}
+.slot:hover,.slot.on{background:#fff8e1;border-color:#fbbf24;font-weight:700;}
+
+/* ============================================================
+   ENERGY DASHBOARD
+============================================================ */
+.e-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.5rem;margin-bottom:2.5rem;}
+.ec{background:#fff;border-radius:20px;padding:2rem;box-shadow:var(--sh);text-align:center;border:1px solid var(--border);transition:all .3s;cursor:default;}
+.ec:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(0,0,0,.1);}
+.ec-ico{font-size:2.8rem;margin-bottom:.75rem;}
+.ec-val{font-size:2.1rem;font-weight:900;color:#f97316;margin-bottom:.3rem;transition:all .5s;}
+.ec p{color:#888;font-size:.84rem;}
+.gauge-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;margin-bottom:2.5rem;}
+.gauge-card{background:#fff;border-radius:20px;padding:2rem;box-shadow:var(--sh);text-align:center;}
+.gauge-card h4{font-size:.95rem;font-weight:600;color:#666;margin-bottom:1.25rem;}
+.e-chart-box{background:#fff;border-radius:20px;padding:2.25rem;box-shadow:var(--sh);margin-bottom:2rem;}
+.e-chart-box h3{margin-bottom:1.75rem;font-size:1.15rem;font-weight:700;}
+.bars{display:flex;align-items:flex-end;gap:8px;height:160px;}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bar{width:100%;border-radius:7px 7px 0 0;transition:height .9s cubic-bezier(.4,0,.2,1);cursor:pointer;min-width:14px;}
+.bar:hover{opacity:.75;}
+.bar.sol{background:linear-gradient(to top,#fbbf24,#f97316);}
+.bar.con{background:linear-gradient(to top,#60a5fa,#3b82f6);}
+.blbl{font-size:.67rem;color:#aaa;text-align:center;}
+.chart-legend{display:flex;gap:2rem;margin-top:1.25rem;flex-wrap:wrap;}
+.cl{display:flex;align-items:center;gap:.5rem;font-size:.85rem;}
+.cl-dot{width:14px;height:14px;border-radius:3px;}
+.e-table{width:100%;border-collapse:collapse;font-size:.91rem;}
+.e-table th{padding:.85rem 1rem;text-align:left;background:#fff8e1;font-weight:700;color:#444;}
+.e-table td{padding:.8rem 1rem;border-bottom:1px solid #f5f5f5;}
+.e-table tr:nth-child(even) td{background:#fafafa;}
+.e-table tr:hover td{background:#fff8e1;}
+.trend-up{color:#10b981;font-weight:700;}
+.trend-dn{color:#ef4444;font-weight:700;}
+
+/* ============================================================
+   CART
+============================================================ */
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start;}
+.cart-item{background:#fff;border-radius:18px;padding:1.5rem;display:flex;gap:1.5rem;align-items:center;margin-bottom:1rem;box-shadow:0 2px 14px rgba(0,0,0,.07);border:1px solid var(--border);transition:all .3s;}
+.cart-item:hover{box-shadow:0 8px 28px rgba(0,0,0,.11);}
+.cart-item img{width:95px;height:95px;object-fit:cover;border-radius:12px;}
+.ci-inf{flex:1;}
+.ci-inf h4{font-size:1.1rem;font-weight:700;margin-bottom:.4rem;}
+.ci-inf p{color:#888;font-size:.87rem;}
+.ci-inf .sbt{color:#f97316;font-weight:700;font-size:.95rem;margin-top:.4rem;}
+.qty-ctrl{display:flex;align-items:center;gap:1rem;}
+.qb{width:36px;height:36px;border-radius:50%;border:2px solid #fbbf24;background:#fff;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;font-weight:800;}
+.qb:hover{background:#fbbf24;}
+.qn{font-weight:900;font-size:1.1rem;min-width:24px;text-align:center;}
+.cart-summary{background:#fff;border-radius:20px;padding:2.25rem;box-shadow:var(--sh);}
+.cart-summary h3{font-size:1.3rem;font-weight:700;margin-bottom:1.75rem;}
+.cs-row{display:flex;justify-content:space-between;align-items:center;padding:.8rem 0;border-bottom:1px solid #f0f0f0;font-size:.95rem;}
+.cs-row:last-of-type{border:none;font-size:1.15rem;font-weight:800;color:#f97316;margin-top:.5rem;}
+.empty-cart{text-align:center;padding:5rem 2rem;background:#fff;border-radius:20px;box-shadow:var(--sh);}
+.empty-ico{font-size:5.5rem;margin-bottom:1.5rem;animation:ecBounce 2.5s infinite;}
+@keyframes ecBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+
+/* ============================================================
+   SETTINGS
+============================================================ */
+.settings-layout{display:grid;grid-template-columns:265px 1fr;gap:2rem;}
+.snav{background:#fff;border-radius:20px;padding:1.5rem;box-shadow:var(--sh);height:fit-content;}
+.sni{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.1rem;border-radius:12px;cursor:pointer;transition:all .25s;font-size:.92rem;color:#555;margin-bottom:4px;border:none;background:transparent;width:100%;text-align:left;font-weight:500;font-family:inherit;}
+.sni:hover{background:#fff8e1;color:#f97316;}
+.sni.on{background:#fbbf24;color:#1a1a1a;font-weight:700;}
+.scont{background:#fff;border-radius:20px;padding:2.75rem;box-shadow:var(--sh);}
+.scont h2{font-size:1.9rem;font-weight:800;margin-bottom:2rem;}
+.ss{margin-bottom:2.75rem;padding-bottom:2.75rem;border-bottom:1px solid #f0f0f0;}
+.ss:last-child{border:none;padding-bottom:0;}
+.ss h3{font-size:1.05rem;font-weight:700;margin-bottom:1.25rem;color:#333;}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:.8rem 0;border-bottom:1px solid #f9f9f9;}
+.tr:last-child{border:none;}
+.trl h4{font-size:.92rem;font-weight:500;}
+.trl p{font-size:.79rem;color:#aaa;}
+.toggle{position:relative;width:46px;height:25px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.ts{position:absolute;cursor:pointer;inset:0;background:#ddd;border-radius:999px;transition:.35s;}
+.ts::before{content:'';position:absolute;width:19px;height:19px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.35s;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.toggle input:checked+.ts{background:#fbbf24;}
+.toggle input:checked+.ts::before{transform:translateX(21px);}
+.theme-opts{display:flex;gap:1rem;flex-wrap:wrap;}
+.topt{padding:.7rem 1.5rem;border-radius:12px;border:2px solid #e5e7eb;cursor:pointer;transition:all .25s;font-size:.9rem;background:#fff;font-weight:500;font-family:inherit;}
+.topt.on,.topt:hover{border-color:#fbbf24;background:#fffbeb;font-weight:700;}
+.avatar-circ{width:86px;height:86px;background:linear-gradient(135deg,#fbbf24,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:1.25rem;box-shadow:0 6px 22px rgba(251,191,36,.42);cursor:pointer;transition:transform .3s;}
+.avatar-circ:hover{transform:scale(1.08);}
+.storage-bar{background:#f0f0f0;border-radius:999px;height:8px;margin:.5rem 0;overflow:hidden;}
+.storage-fill{height:100%;background:linear-gradient(to right,#fbbf24,#f97316);border-radius:999px;transition:width .8s ease;}
+
+/* ============================================================
+   MODALS
+============================================================ */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:600;align-items:center;justify-content:center;}
+.modal.open{display:flex;animation:mIn .3s ease;}
+@keyframes mIn{from{opacity:0;}to{opacity:1;}}
+.mbox{background:#fff;border-radius:26px;padding:2.75rem;max-width:540px;width:93%;position:relative;animation:mUp .32s ease-out;box-shadow:0 28px 90px rgba(0,0,0,.28);max-height:90vh;overflow-y:auto;}
+.mbox.wide{max-width:720px;}
+@keyframes mUp{from{opacity:0;transform:translateY(35px) scale(.9);}to{opacity:1;transform:translateY(0) scale(1);}}
+.mcls{position:absolute;top:1rem;right:1rem;background:#f5f5f5;border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.15rem;display:flex;align-items:center;justify-content:center;color:#666;transition:all .2s;}
+.mcls:hover{background:#e5e7eb;transform:rotate(90deg);}
+.mico{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.75rem;margin:0 auto 1.75rem;}
+.mico.ok{background:#dcfce7;}.mico.warn{background:#fef3c7;}.mico.err{background:#fee2e2;}.mico.info{background:#dbeafe;}
+.mbox h2{text-align:center;font-size:1.9rem;font-weight:800;margin-bottom:.75rem;}
+.mbox .msub{text-align:center;color:#777;margin-bottom:2rem;line-height:1.65;}
+.macts{display:flex;gap:1rem;}
+.macts button{flex:1;}
+
+/* ============================================================
+   CHATBOT
+============================================================ */
+.cb-fab{position:fixed;bottom:2rem;right:2rem;z-index:400;}
+.cb-toggle{width:64px;height:64px;background:linear-gradient(135deg,#fbbf24,#f97316);border-radius:50%;border:none;cursor:pointer;font-size:1.9rem;box-shadow:0 8px 28px rgba(251,191,36,.65);transition:all .3s;display:flex;align-items:center;justify-content:center;animation:cbPulse 3s infinite;}
+@keyframes cbPulse{0%,100%{box-shadow:0 8px 28px rgba(251,191,36,.65);}50%{box-shadow:0 8px 50px rgba(251,191,36,1);}}
+.cb-toggle:hover{transform:scale(1.12) rotate(10deg);}
+.cb-win{position:fixed;bottom:7.5rem;right:2rem;width:390px;height:550px;background:#fff;border-radius:26px;box-shadow:0 24px 70px rgba(0,0,0,.22);z-index:400;display:flex;flex-direction:column;overflow:hidden;animation:mUp .32s ease-out;}
+.cb-win.hide{display:none;}
+.cb-hdr{background:linear-gradient(135deg,#fbbf24,#f97316);padding:1.35rem 1.6rem;display:flex;align-items:center;gap:1rem;}
+.cb-hdr-ico{width:44px;height:44px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.cb-hdr h3{color:#1a1a1a;font-size:1rem;font-weight:800;}
+.cb-hdr p{color:rgba(26,26,26,.65);font-size:.77rem;}
+.cb-online{width:9px;height:9px;background:#22c55e;border-radius:50%;margin-left:auto;box-shadow:0 0 10px #22c55e;animation:blink 2.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.cb-msgs{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:.9rem;background:#fafafa;}
+.cb-msgs::-webkit-scrollbar{width:4px;}
+.cb-msgs::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:999px;}
+.msg-b{max-width:84%;padding:.9rem 1.1rem;border-radius:18px;font-size:.9rem;line-height:1.6;animation:msgIn .32s ease-out;}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.msg-b.bot{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #f0f0f0;}
+.msg-b.user{background:linear-gradient(135deg,#fbbf24,#f97316);color:#1a1a1a;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500;}
+.typing-dots{display:flex;gap:5px;padding:.9rem 1.1rem;background:#fff;border-radius:18px;border-bottom-left-radius:4px;align-self:flex-start;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #f0f0f0;}
+.dot{width:9px;height:9px;background:#ddd;border-radius:50%;animation:tdot 1.4s infinite;}
+.dot:nth-child(2){animation-delay:.22s;}.dot:nth-child(3){animation-delay:.44s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-10px);background:#fbbf24;}}
+.cb-inp{display:flex;gap:.75rem;padding:1rem;border-top:1px solid #f0f0f0;background:#fff;}
+.cb-inp input{flex:1;padding:.7rem 1.1rem;border:2px solid #eee;border-radius:12px;font-size:.9rem;transition:border .3s;font-family:inherit;}
+.cb-inp input:focus{outline:none;border-color:#fbbf24;}
+.cb-inp button{width:42px;height:42px;background:#fbbf24;border:none;border-radius:11px;cursor:pointer;font-size:1.05rem;transition:all .2s;}
+.cb-inp button:hover{background:#f59e0b;transform:scale(1.08);}
+
+/* ============================================================
+   NOTIFICATIONS
+============================================================ */
+.notif-c{position:fixed;top:80px;right:1.5rem;z-index:450;display:flex;flex-direction:column;gap:.85rem;pointer-events:none;}
+.notif{background:#fff;border-radius:16px;padding:1.1rem 1.35rem;box-shadow:0 6px 28px rgba(0,0,0,.15);display:flex;align-items:flex-start;gap:1rem;min-width:310px;max-width:350px;animation:nIn .4s ease-out;position:relative;overflow:hidden;border:1px solid #f0f0f0;pointer-events:all;}
+@keyframes nIn{from{opacity:0;transform:translateX(95px);}to{opacity:1;transform:translateX(0);}}
+.n-ico{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;}
+.n-ico.ok{background:#10b981;color:#fff;}.n-ico.pr{background:#fbbf24;color:#1a1a1a;}.n-ico.in{background:#3b82f6;color:#fff;}.n-ico.warn{background:#f97316;color:#fff;}
+.n-txt h4{font-size:.88rem;font-weight:700;margin-bottom:.2rem;}
+.n-txt p{font-size:.79rem;color:#777;}
+.n-x{position:absolute;top:.6rem;right:.6rem;background:none;border:none;cursor:pointer;color:#ccc;font-size:1.1rem;line-height:1;}
+.n-x:hover{color:#666;}
+.n-bar{position:absolute;bottom:0;left:0;height:3px;background:#fbbf24;animation:nbar 5s linear forwards;}
+@keyframes nbar{from{width:100%;}to{width:0%;}}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer{background:#1e1e2e;color:rgba(255,255,255,.5);text-align:center;padding:3rem 2rem;font-size:.88rem;}
+footer a{color:#fbbf24;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media(max-width:1100px){
+  .ods-inner,.contact-grid,.roi-grid,.settings-layout{grid-template-columns:1fr;}
+  .cart-layout{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  nav{display:none;}
+  .mob-nav{display:flex;}
+  .hero h1{font-size:2.2rem;}
+  .sh h2{font-size:1.9rem;}
+  .fr{grid-template-columns:1fr;}
+  .cb-win{width:calc(100vw - 2rem);right:1rem;}
+  .contact-box{padding:2rem 1.5rem;}
+  body{padding-bottom:70px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ██ ANIMATED BACKGROUND ██ -->
+<div id="animBg">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<!-- ██ NOTIFICATIONS ██ -->
+<div class="notif-c" id="notifC"></div>
+
+<!-- ██ HEADER ██ -->
+<header>
+  <div class="hdr">
+    <div class="logo" onclick="goTo('home')">
+      <div class="logo-ico">☀️</div>
+      <div class="logo-txt"><h1>SolarMind.</h1><p>Solar Business</p></div>
+    </div>
+    <nav>
+      <button class="nb on" onclick="goTo('home',this)">🏠 Principal</button>
+      <button class="nb" onclick="goTo('store',this)">🏪 Tienda</button>
+      <button class="nb" onclick="goTo('energy',this)">⚡ Energía</button>
+      <button class="nb" onclick="goTo('cart',this)">🛒 Carrito <span class="cbadge" id="cartBadge" style="display:none">0</span></button>
+      <button class="nb" onclick="goTo('settings',this)">⚙️ Ajustes</button>
+      <button class="nb red" onclick="openM('mLogout')">🚪 Salir</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ██ MOBILE NAV ██ -->
+<div class="mob-nav" id="mobNav">
+  <button class="mn-btn on" onclick="goTo('home',this)"><span class="mi">🏠</span>Inicio</button>
+  <button class="mn-btn" onclick="goTo('store',this)"><span class="mi">🏪</span>Tienda</button>
+  <button class="mn-btn" onclick="goTo('energy',this)"><span class="mi">⚡</span>Energía</button>
+  <button class="mn-btn" onclick="goTo('cart',this)"><span class="mi">🛒</span>Carrito</button>
+  <button class="mn-btn" onclick="goTo('settings',this)"><span class="mi">⚙️</span>Ajustes</button>
+</div>
+
+<!-- ████████████████ HOME ████████████████ -->
+<div id="home" class="pg on">
+
+  <div class="hero">
+    <div class="hero-badge">🌱 Energía Limpia · ODS #7 ONU</div>
+    <h1>☀️ Transforma tu Hogar<br>con Energía Solar</h1>
+    <p class="sub">La solución inteligente, sustentable y rentable para el futuro de tu familia</p>
+    <div class="hero-stats">
+      <div class="hstat"><h3>65%</h3><p>Ahorro energético</p></div>
+      <div class="hstat"><h3>5,000+</h3><p>Hogares solares</p></div>
+      <div class="hstat"><h3>15,000</h3><p>Ton CO₂ evitadas</p></div>
+      <div class="hstat"><h3>10 años</h3><p>Garantía total</p></div>
+    </div>
+    <div class="hero-btns">
+      <button class="hero-cta" onclick="goTo('store')">☀️ Ver Productos</button>
+      <button class="hero-cta outline" onclick="goTo('energy')">⚡ Monitor Solar</button>
+    </div>
+  </div>
+
+  <!-- VISION -->
+  <div class="sec">
+    <div class="sh"><h2>Conoce nuestra <span class="hl">visión</span></h2><p>Lideramos la transición energética en Latinoamérica</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;">
+      <div class="vision-card">
+        <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=500&h=220&fit=crop" alt="Vision">
+        <div class="vcb"><div class="vcb-ico" style="background:#fff8e1">👁️</div><h3>Nuestra Visión</h3><p>Ser la empresa líder en energía solar residencial, democratizando el acceso a energía limpia y asequible para todos los hogares de Latinoamérica.</p></div>
+      </div>
+      <div class="vision-card">
+        <img src="https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?w=500&h=220&fit=crop" alt="Mission">
+        <div class="vcb"><div class="vcb-ico" style="background:#dcfce7">🎯</div><h3>Nuestra Misión</h3><p>Diseñar, instalar y mantener sistemas de energía solar que transformen hogares en fuentes de energía sustentable y ahorro económico real.</p></div>
+      </div>
+      <div class="vision-card">
+        <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=500&h=220&fit=crop" alt="Impact">
+        <div class="vcb"><div class="vcb-ico" style="background:#dbeafe">📈</div><h3>Nuestro Impacto</h3><p>Más de 5,000 hogares solares activos, 15,000 toneladas de CO₂ evitadas y una comunidad comprometida con el futuro del planeta.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMUNITY -->
+  <div class="community">
+    <div class="comm-inner">
+      <h2>Únete a nuestra <span style="color:#fbbf24">comunidad solar</span></h2>
+      <p class="sub">Miles de familias ya están ahorrando y cuidando el planeta con SolarMind</p>
+      <div class="comm-grid">
+        <div class="comm-card"><div class="comm-ico">☀️</div><h3>5,000+</h3><p>Familias solares activas</p></div>
+        <div class="comm-card"><div class="comm-ico">💰</div><h3>$2M+</h3><p>Ahorros generados</p></div>
+        <div class="comm-card"><div class="comm-ico">🌍</div><h3>15,000</h3><p>Ton CO₂ reducidas</p></div>
+        <div class="comm-card"><div class="comm-ico">⭐</div><h3>4.9/5</h3><p>Satisfacción promedio</p></div>
+        <div class="comm-card"><div class="comm-ico">🔧</div><h3>200+</h3><p>Técnicos certificados</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ODS7 -->
+  <div class="ods-wrap">
+    <div class="ods-inner">
+      <div class="ods-text">
+        <div class="ods-badge">🌱 ODS #7 — Naciones Unidas</div>
+        <h2>Energía <span class="hl">Asequible</span><br>y No Contaminante</h2>
+        <p>El Objetivo de Desarrollo Sostenible #7 busca garantizar el acceso a energía asequible, fiable, sostenible y moderna para todos.</p>
+        <p>Al 2030, la ONU espera que el 90% de la energía provenga de fuentes renovables. Nosotros estamos aquí para hacer ese objetivo posible, hogar por hogar.</p>
+        <button class="btn btn-p btn-lg mt2" onclick="goTo('store')">Unirme al cambio ☀️</button>
+      </div>
+      <div>
+        <div class="ods-img-wrap">
+          <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=700&h=300&fit=crop" alt="ODS7">
+          <div class="ods-overlay"><h3>ODS #7</h3><p>Energía asequible y no contaminante</p></div>
+        </div>
+        <div class="ods-sg">
+          <div class="ods-stat"><div class="n">193</div><div class="l">Países comprometidos</div></div>
+          <div class="ods-stat"><div class="n">733M</div><div class="l">Personas sin electricidad</div></div>
+          <div class="ods-stat"><div class="n">90%</div><div class="l">Meta renovables 2030</div></div>
+          <div class="ods-stat"><div class="n">2030</div><div class="l">Meta global ONU</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVISORS -->
+  <div class="sec">
+    <div class="sh"><h2>Nuestros <span class="hl">Asesores</span></h2><p>Expertos certificados listos para orientarte en tu proyecto solar</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;">
+      <div class="adv-card">
+        <img class="adv-av" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop" alt="Carlos">
+        <div class="adv-nm">Carlos Mendoza</div><div class="adv-rl">Director Técnico</div>
+        <p class="adv-bio">15 años de experiencia en instalación y diseño de sistemas fotovoltaicos residenciales e industriales en México.</p>
+        <div class="stars">★★★★★</div>
+        <div><span class="adv-tag">Paneles</span><span class="adv-tag">Inversores</span></div>
+      </div>
+      <div class="adv-card">
+        <img class="adv-av" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop" alt="Maria">
+        <div class="adv-nm">María González</div><div class="adv-rl">Consultora de Energía</div>
+        <p class="adv-bio">Especialista en eficiencia energética y análisis ROI para proyectos solares. Certificada por la SENER.</p>
+        <div class="stars">★★★★★</div>
+        <div><span class="adv-tag">ROI</span><span class="adv-tag">Eficiencia</span></div>
+      </div>
+      <div class="adv-card">
+        <img class="adv-av" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop" alt="Roberto">
+        <div class="adv-nm">Roberto Sánchez</div><div class="adv-rl">Ingeniero Solar</div>
+        <p class="adv-bio">Certificado en baterías de litio LiFePO4 y sistemas de almacenamiento de última generación.</p>
+        <div class="stars">★★★★★</div>
+        <div><span class="adv-tag">Baterías</span><span class="adv-tag">IoT</span></div>
+      </div>
+      <div class="adv-card">
+        <img class="adv-av" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop" alt="Ana">
+        <div class="adv-nm">Ana Martínez</div><div class="adv-rl">Asesora Comercial</div>
+        <p class="adv-bio">Experta en financiamiento solar, opciones de crédito verde y programas de subsidio gubernamental.</p>
+        <div class="stars">★★★★★</div>
+        <div><span class="adv-tag">Financiamiento</span><span class="adv-tag">Crédito</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="sec">
+    <div class="contact-box">
+      <div class="contact-grid">
+        <div class="ci">
+          <h2>Contacta con<br>nuestros asesores</h2>
+          <div class="ci-item"><div class="ci-ico">📞</div><div class="ci-txt"><strong>Teléfono</strong><span>+52 (55) 1234-5678<br>Lunes a Viernes 9am–6pm</span></div></div>
+          <div class="ci-item"><div class="ci-ico">📧</div><div class="ci-txt"><strong>Email</strong><span>asesores@solarmind.mx<br>Respuesta en menos de 24h</span></div></div>
+          <div class="ci-item"><div class="ci-ico">📍</div><div class="ci-txt"><strong>Oficina central</strong><span>Ciudad de México, México<br>Cobertura nacional</span></div></div>
+          <div class="ci-item"><div class="ci-ico">💬</div><div class="ci-txt"><strong>WhatsApp</strong><span>+52 55 9876-5432<br>Soporte inmediato</span></div></div>
+        </div>
+        <div class="cf">
+          <h3>📬 Envíanos un mensaje</h3>
+          <form onsubmit="handleContact(event)">
+            <div class="fr">
+              <div class="fg"><label>Nombre</label><input type="text" id="cN" required placeholder="Tu nombre completo"></div>
+              <div class="fg"><label>Correo electrónico</label><input type="email" id="cE" required placeholder="tu@correo.com"></div>
+            </div>
+            <div class="fg"><label>Teléfono</label><input type="tel" id="cP" placeholder="+52 55 0000-0000"></div>
+            <div class="fg"><label>Asunto</label>
+              <select id="cS">
+                <option>Cotización de instalación solar</option>
+                <option>Soporte técnico</option>
+                <option>Información de productos</option>
+                <option>Financiamiento</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="fg"><label>Mensaje</label><textarea id="cM" required placeholder="¿En qué podemos ayudarte?..."></textarea></div>
+            <button type="submit" class="btn btn-p btn-full">📤 Enviar Mensaje</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2026 SolarMind. Todos los derechos reservados. Energía para un futuro mejor 🌱<br><a href__="#">Términos de uso</a> · <a href__="#">Privacidad</a> · <a href__="#">Soporte</a></footer>
+</div>
+
+<!-- ████████████████ STORE ████████████████ -->
+<div id="store" class="pg">
+  <div class="sec">
+    <div class="sh"><h2>Tienda <span class="hl">Solar</span></h2><p>Productos premium para tu sistema de energía solar</p></div>
+
+    <div class="store-top">
+      <input class="srch" type="text" id="srchBox" placeholder="🔍 Buscar productos..." oninput="filterProds()">
+      <div class="filters">
+        <button class="fb on" onclick="setFilter('all',this)">Todos</button>
+        <button class="fb" onclick="setFilter('paneles',this)">☀️ Paneles</button>
+        <button class="fb" onclick="setFilter('inversores',this)">⚡ Inversores</button>
+        <button class="fb" onclick="setFilter('baterias',this)">🔋 Baterías</button>
+        <button class="fb" onclick="setFilter('accesorios',this)">🔧 Accesorios</button>
+      </div>
+    </div>
+    <div class="products-grid" id="prodGrid"></div>
+
+    <!-- ROI CALCULATOR -->
+    <div class="roi-box">
+      <h2>🧮 Calculadora de Retorno de Inversión Solar</h2>
+      <div class="roi-grid">
+        <div>
+          <div class="rg"><label>Factura mensual actual <span id="vBill">$2,500</span></label><input type="range" id="rBill" min="500" max="15000" value="2500" step="100" oninput="calcROI()"></div>
+          <div class="rg"><label>Paneles a instalar <span id="vPanels">8</span></label><input type="range" id="rPanels" min="4" max="32" value="8" oninput="calcROI()"></div>
+          <div class="rg"><label>Horas de sol por día <span id="vSun">6h</span></label><input type="range" id="rSun" min="3" max="10" value="6" oninput="calcROI()"></div>
+          <div class="rg"><label>Tarifa eléctrica ($/kWh) <span id="vRate">$2.80</span></label><input type="range" id="rRate" min="1" max="8" value="2.8" step="0.1" oninput="calcROI()"></div>
+        </div>
+        <div class="roi-result">
+          <h3>📊 Resultados Estimados</h3>
+          <div class="rm"><span class="rl">Producción diaria</span><span class="rv y" id="rD">—</span></div>
+          <div class="rm"><span class="rl">Producción mensual</span><span class="rv y" id="rM">—</span></div>
+          <div class="rm"><span class="rl">Ahorro mensual</span><span class="rv g" id="rSm">—</span></div>
+          <div class="rm"><span class="rl">Ahorro anual</span><span class="rv g" id="rSy">—</span></div>
+          <div class="rm"><span class="rl">Inversión estimada</span><span class="rv w" id="rInv">—</span></div>
+          <div class="rm"><span class="rl">Retorno de inversión</span><span class="rv y" id="rROI">—</span></div>
+          <div class="rm"><span class="rl">CO₂ evitado/año</span><span class="rv g" id="rCO2">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANS -->
+    <div style="margin-top:4rem">
+      <div class="sh"><h2>Planes de <span class="hl">Instalación</span></h2><p>Todo incluido: equipos, instalación, configuración y garantía</p></div>
+      <div class="plans-grid">
+        <div class="plan">
+          <div class="plan-ico">🌱</div>
+          <h3>Plan Básico</h3><p class="pd">Para hogares pequeños, consumo moderado</p>
+          <div class="plan-price">$45,000 <small>MXN</small></div>
+          <ul class="plan-feats">
+            <li>✅ 4 Paneles 450W monocristalinos</li>
+            <li>✅ Inversor grid-tie 2kW</li>
+            <li>✅ Instalación y configuración</li>
+            <li>✅ Monitoreo básico online</li>
+            <li>✅ Garantía 10 años instalación</li>
+            <li>⭕ Sin batería de respaldo</li>
+          </ul>
+          <button class="btn btn-o btn-full" onclick="openQuote('Plan Básico','$45,000')">Solicitar cotización</button>
+        </div>
+        <div class="plan feat">
+          <div class="plan-pop">⭐ MÁS POPULAR</div>
+          <div class="plan-ico">🌟</div>
+          <h3>Plan Hogar</h3><p class="pd">El más elegido por familias mexicanas</p>
+          <div class="plan-price">$95,000 <small>MXN</small></div>
+          <ul class="plan-feats">
+            <li>✅ 8 Paneles 450W monocristalinos</li>
+            <li>✅ Inversor Híbrido 5kW WiFi</li>
+            <li>✅ Batería LiFePO4 5kWh</li>
+            <li>✅ App de monitoreo avanzada</li>
+            <li>✅ Garantía 25 años paneles</li>
+            <li>✅ Mantenimiento primer año</li>
+          </ul>
+          <button class="btn btn-p btn-full" onclick="openQuote('Plan Hogar','$95,000')">Solicitar cotización</button>
+        </div>
+        <div class="plan">
+          <div class="plan-ico">🏆</div>
+          <h3>Plan Premium</h3><p class="pd">Autonomía total y máximo rendimiento</p>
+          <div class="plan-price">$180,000 <small>MXN</small></div>
+          <ul class="plan-feats">
+            <li>✅ 16 Paneles Premium 550W bifaciales</li>
+            <li>✅ Inversor Híbrido 10kW WiFi</li>
+            <li>✅ Batería LiFePO4 20kWh</li>
+            <li>✅ Sistema IoT + IA integrada</li>
+            <li>✅ Mantenimiento 5 años incluido</li>
+            <li>✅ Garantía extendida 30 años</li>
+          </ul>
+          <button class="btn btn-o btn-full" onclick="openQuote('Plan Premium','$180,000')">Solicitar cotización</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECH APPOINTMENTS -->
+    <div class="apt-box" style="margin-top:4rem">
+      <div class="sh" style="margin-bottom:2rem"><h2>🔧 Agenda <span class="hl">Servicio Técnico</span></h2><p>Técnicos certificados van a tu domicilio — Lun a Sáb</p></div>
+      <div class="apt-steps">
+        <div class="as active" id="as1"><div class="as-n">1</div><p>Servicio</p></div>
+        <div class="as" id="as2"><div class="as-n">2</div><p>Fecha</p></div>
+        <div class="as" id="as3"><div class="as-n">3</div><p>Hora</p></div>
+        <div class="as" id="as4"><div class="as-n">4</div><p>Datos</p></div>
+      </div>
+      <!-- Step 1 -->
+      <div id="aS1">
+        <h4 style="margin-bottom:1.25rem;font-weight:700;">Elige el tipo de servicio:</h4>
+        <div class="svc-grid">
+          <div class="svc" onclick="pickSvc('Diagnóstico del sistema',this)"><div class="svc-ico">🔍</div><p>Diagnóstico</p></div>
+          <div class="svc" onclick="pickSvc('Instalación nueva',this)"><div class="svc-ico">🔧</div><p>Instalación</p></div>
+          <div class="svc" onclick="pickSvc('Mantenimiento preventivo',this)"><div class="svc-ico">⚙️</div><p>Mantenimiento</p></div>
+          <div class="svc" onclick="pickSvc('Revisión del sistema',this)"><div class="svc-ico">📋</div><p>Revisión</p></div>
+          <div class="svc" onclick="pickSvc('Consultoría energética',this)"><div class="svc-ico">💡</div><p>Consultoría</p></div>
+          <div class="svc" onclick="pickSvc('Reparación de fallas',this)"><div class="svc-ico">🛠️</div><p>Reparación</p></div>
+        </div>
+        <button class="btn btn-p mt2" id="btnN1" onclick="goStep(2)" style="display:none">Siguiente →</button>
+      </div>
+      <!-- Step 2 -->
+      <div id="aS2" style="display:none">
+        <h4 style="margin-bottom:1.25rem;font-weight:700;">Selecciona la fecha del servicio:</h4>
+        <div class="fg" style="max-width:320px"><label>Fecha</label><input type="date" id="aptDt" oninput="document.getElementById('btnN2').style.display='inline-flex'"></div>
+        <div style="display:flex;gap:1rem"><button class="btn btn-s" onclick="goStep(1)">← Anterior</button><button class="btn btn-p" id="btnN2" onclick="goStep(3)" style="display:none">Siguiente →</button></div>
+      </div>
+      <!-- Step 3 -->
+      <div id="aS3" style="display:none">
+        <h4 style="margin-bottom:1.25rem;font-weight:700;">Selecciona el horario:</h4>
+        <div class="slots" id="slotsGrid"></div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem"><button class="btn btn-s" onclick="goStep(2)">← Anterior</button><button class="btn btn-p" id="btnN3" onclick="goStep(4)" style="display:none">Siguiente →</button></div>
+      </div>
+      <!-- Step 4 -->
+      <div id="aS4" style="display:none">
+        <h4 style="margin-bottom:1.25rem;font-weight:700;">Datos de contacto:</h4>
+        <form onsubmit="submitApt(event)">
+          <div class="fr">
+            <div class="fg"><label>Nombre completo</label><input type="text" id="aN" required></div>
+            <div class="fg"><label>Correo electrónico</label><input type="email" id="aE" required></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label>Teléfono</label><input type="tel" id="aT" required></div>
+            <div class="fg"><label>Dirección del servicio</label><input type="text" id="aD" required></div>
+          </div>
+          <div class="fg"><label>Notas para el técnico</label><textarea id="aN2" placeholder="Modelo de inversor, descripción del problema..."></textarea></div>
+          <div style="display:flex;gap:1rem"><button type="button" class="btn btn-s" onclick="goStep(3)">← Anterior</button><button type="submit" class="btn btn-p btn-lg">📅 Confirmar Cita</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ████████████████ ENERGY ████████████████ -->
+<div id="energy" class="pg">
+  <div class="sec">
+    <div class="sh"><h2>Monitor de <span class="hl">Energía Solar</span></h2><p>Producción, consumo y ahorro en tiempo real</p></div>
+
+    <!-- KPI CARDS -->
+    <div class="e-grid">
+      <div class="ec"><div class="ec-ico">☀️</div><div class="ec-val" id="ev1">4.2 kW</div><p>Producción solar</p></div>
+      <div class="ec"><div class="ec-ico">🏠</div><div class="ec-val" id="ev2">2.8 kW</div><p>Consumo del hogar</p></div>
+      <div class="ec"><div class="ec-ico">🔋</div><div class="ec-val" id="ev3">78%</div><p>Nivel de batería</p></div>
+      <div class="ec"><div class="ec-ico">⚡</div><div class="ec-val" id="ev4">1.4 kW</div><p>Exportando a red</p></div>
+      <div class="ec"><div class="ec-ico">💰</div><div class="ec-val" id="ev5">$312</div><p>Ahorro este mes</p></div>
+      <div class="ec"><div class="ec-ico">🌱</div><div class="ec-val" id="ev6">42 kg</div><p>CO₂ evitado</p></div>
+    </div>
+
+    <!-- SVG GAUGES -->
+    <div class="gauge-wrap">
+      <div class="gauge-card">
+        <h4>☀️ Producción Solar</h4>
+        <svg width="170" height="110" viewBox="0 0 170 110" style="overflow:visible">
+          <path d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="#f0f0f0" stroke-width="15" stroke-linecap="round"/>
+          <path id="g1" d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="url(#solGrad)" stroke-width="15" stroke-linecap="round" stroke-dasharray="235" stroke-dashoffset="90"/>
+          <defs><linearGradient id="solGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#fbbf24"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs>
+          <text x="85" y="90" text-anchor="middle" font-size="22" font-weight="900" fill="#f97316" id="gt1">4.2</text>
+          <text x="85" y="107" text-anchor="middle" font-size="10" fill="#aaa">kW de 6 kW máx</text>
+        </svg>
+      </div>
+      <div class="gauge-card">
+        <h4>🔋 Batería LiFePO4</h4>
+        <svg width="170" height="110" viewBox="0 0 170 110" style="overflow:visible">
+          <path d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="#f0f0f0" stroke-width="15" stroke-linecap="round"/>
+          <path id="g2" d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="#10b981" stroke-width="15" stroke-linecap="round" stroke-dasharray="235" stroke-dashoffset="52"/>
+          <text x="85" y="90" text-anchor="middle" font-size="22" font-weight="900" fill="#10b981" id="gt2">78%</text>
+          <text x="85" y="107" text-anchor="middle" font-size="10" fill="#aaa">Litio 10kWh</text>
+        </svg>
+      </div>
+      <div class="gauge-card">
+        <h4>🏠 Consumo Hogar</h4>
+        <svg width="170" height="110" viewBox="0 0 170 110" style="overflow:visible">
+          <path d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="#f0f0f0" stroke-width="15" stroke-linecap="round"/>
+          <path id="g3" d="M 15 95 A 75 75 0 0 1 155 95" fill="none" stroke="#3b82f6" stroke-width="15" stroke-linecap="round" stroke-dasharray="235" stroke-dashoffset="141"/>
+          <text x="85" y="90" text-anchor="middle" font-size="22" font-weight="900" fill="#3b82f6" id="gt3">2.8</text>
+          <text x="85" y="107" text-anchor="middle" font-size="10" fill="#aaa">kW de 5 kW</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- HOURLY CHART -->
+    <div class="e-chart-box">
+      <h3>📊 Producción vs Consumo — Últimas 12 horas</h3>
+      <div class="bars" id="hourChart"></div>
+      <div class="chart-legend">
+        <span class="cl"><span class="cl-dot" style="background:#fbbf24"></span>Producción Solar</span>
+        <span class="cl"><span class="cl-dot" style="background:#3b82f6"></span>Consumo Hogar</span>
+      </div>
+    </div>
+
+    <!-- WEEKLY CHART -->
+    <div class="e-chart-box">
+      <h3>📅 Producción Semanal (kWh)</h3>
+      <div class="bars" id="weekChart"></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="e-chart-box">
+      <h3>📋 Resumen Mensual Detallado</h3>
+      <div style="overflow-x:auto">
+        <table class="e-table" id="energyTable">
+          <thead><tr><th>Semana</th><th>Prod. Solar</th><th>Consumo</th><th>Balance</th><th>Ahorro MXN</th><th>CO₂ evitado</th><th>Tendencia</th></tr></thead>
+          <tbody id="eTBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ████████████████ CART ████████████████ -->
+<div id="cart" class="pg">
+  <div class="sec">
+    <div class="sh"><h2>Tu <span class="hl">Carrito</span></h2><p>Revisa y finaliza tu pedido solar</p></div>
+    <div id="cartWrap"></div>
+  </div>
+</div>
+
+<!-- ████████████████ SETTINGS ████████████████ -->
+<div id="settings" class="pg">
+  <div class="sec">
+    <div class="sh"><h2>⚙️ <span class="hl">Configuración</span></h2></div>
+    <div class="settings-layout">
+      <div class="snav">
+        <button class="sni on" onclick="setTab('profile',this)">👤 Mi Perfil</button>
+        <button class="sni" onclick="setTab('appearance',this)">🎨 Apariencia</button>
+        <button class="sni" onclick="setTab('notifications',this)">🔔 Notificaciones</button>
+        <button class="sni" onclick="setTab('security',this)">🔒 Seguridad</button>
+        <button class="sni" onclick="setTab('preferences',this)">⚡ Preferencias</button>
+        <button class="sni" onclick="setTab('advanced',this)">🛠️ Avanzado</button>
+        <button class="sni" onclick="setTab('info',this)">ℹ️ Información</button>
+      </div>
+      <div class="scont">
+        <!-- PROFILE TAB -->
+        <div id="tab-profile">
+          <h2>Mi Perfil</h2>
+          <div class="ss">
+            <h3>Foto de perfil</h3>
+            <div class="avatar-circ" id="avatarCirc" onclick="notif('📷 Foto','Función de cámara disponible en la app móvil','in')">👤</div>
+            <p style="color:#aaa;font-size:.82rem;margin-bottom:1.5rem">Toca para cambiar tu foto de perfil</p>
+          </div>
+          <div class="ss">
+            <h3>Información personal</h3>
+            <div class="fr">
+              <div class="fg"><label>Nombre</label><input type="text" id="sN" value="Usuario Solar"></div>
+              <div class="fg"><label>Apellido</label><input type="text" id="sA" value="SolarMind"></div>
+            </div>
+            <div class="fg"><label>Correo electrónico</label><input type="email" id="sE" value="usuario@solarmind.mx"></div>
+            <div class="fr">
+              <div class="fg"><label>Teléfono</label><input type="tel" id="sTel" value="+52 55 1234-5678"></div>
+              <div class="fg"><label>Ciudad</label><input type="text" id="sC" value="Ciudad de México"></div>
+            </div>
+          </div>
+          <div class="ss" style="border:none">
+            <h3>Sistema solar registrado</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="fg"><label>Número de paneles</label><input type="number" value="8" min="1" max="50"></div>
+              <div class="fg"><label>Capacidad inversor</label><select><option>2 kW</option><option selected>5 kW</option><option>10 kW</option></select></div>
+            </div>
+            <button class="btn btn-p" onclick="saveProfile()">💾 Guardar Cambios</button>
+          </div>
+        </div>
+
+        <!-- APPEARANCE TAB -->
+        <div id="tab-appearance" style="display:none">
+          <h2>Apariencia</h2>
+          <div class="ss"><h3>Tema de la interfaz</h3><div class="theme-opts"><button class="topt on" onclick="pickTheme('light',this)">☀️ Claro</button><button class="topt" onclick="pickTheme('dark',this)">🌙 Oscuro</button><button class="topt" onclick="pickTheme('auto',this)">🖥️ Sistema</button></div></div>
+          <div class="ss"><h3>Color de acento</h3><div class="theme-opts"><button class="topt on" onclick="pickAccent('#fbbf24','Solar Dorado',this)">🌟 Solar</button><button class="topt" onclick="pickAccent('#f97316','Naranja',this)">🔥 Naranja</button><button class="topt" onclick="pickAccent('#10b981','Verde',this)">🌿 Verde</button><button class="topt" onclick="pickAccent('#3b82f6','Azul',this)">💙 Azul</button></div></div>
+          <div class="ss"><h3>Tamaño de fuente</h3><div class="theme-opts"><button class="topt" onclick="setFontSz('14px',this)">A Pequeño</button><button class="topt on" onclick="setFontSz('16px',this)">A Mediano</button><button class="topt" onclick="setFontSz('18px',this)">A Grande</button></div></div>
+          <div class="ss" style="border:none"><h3>Animaciones</h3>
+            <div class="tr"><div class="trl"><h4>Animaciones de fondo</h4><p>Blobs animados en el fondo</p></div><label class="toggle"><input type="checkbox" checked onchange="document.getElementById('animBg').style.display=this.checked?'block':'none'"><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Transiciones de página</h4><p>Animaciones al cambiar secciones</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS TAB -->
+        <div id="tab-notifications" style="display:none">
+          <h2>Notificaciones</h2>
+          <div class="ss"><h3>Correo electrónico</h3>
+            <div class="tr"><div class="trl"><h4>Resumen diario de producción</h4><p>Recibe un reporte diario de tu sistema</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Alertas del sistema</h4><p>Cuando tu sistema necesita atención</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Boletín mensual</h4><p>Novedades, tips y consejos solares</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Ofertas y descuentos</h4><p>Promociones exclusivas para clientes</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+          </div>
+          <div class="ss" style="border:none"><h3>Push / App móvil</h3>
+            <div class="tr"><div class="trl"><h4>Notificaciones en tiempo real</h4><p>Alertas instantáneas de tu sistema</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Alerta batería baja (&lt;20%)</h4><p>Notifica cuando la batería baja</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Producción óptima alcanzada</h4><p>Cuando alcanzas tu máxima producción</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+          </div>
+        </div>
+
+        <!-- SECURITY TAB -->
+        <div id="tab-security" style="display:none">
+          <h2>Seguridad</h2>
+          <div class="ss"><h3>Cambiar contraseña</h3>
+            <div class="fg"><label>Contraseña actual</label><input type="password" placeholder="••••••••"></div>
+            <div class="fg"><label>Nueva contraseña</label><input type="password" placeholder="Mínimo 8 caracteres"></div>
+            <div class="fg"><label>Confirmar nueva contraseña</label><input type="password" placeholder="Repite la contraseña"></div>
+            <button class="btn btn-p" onclick="showOK('Contraseña actualizada ✓','Tu contraseña fue cambiada exitosamente.')">🔑 Actualizar contraseña</button>
+          </div>
+          <div class="ss"><h3>Autenticación de dos factores (2FA)</h3>
+            <div class="tr"><div class="trl"><h4>2FA por SMS</h4><p>Código de verificación por mensaje de texto</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>2FA por Authenticator App</h4><p>Google Authenticator, Authy, etc.</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+          </div>
+          <div class="ss" style="border:none"><h3>Sesiones activas</h3>
+            <div style="background:#fff8e1;border-radius:14px;padding:1.3rem;display:flex;justify-content:space-between;align-items:center;border:1px solid #fde68a;margin-bottom:1rem">
+              <div><strong>📍 Ciudad de México</strong><p style="color:#888;font-size:.84rem;margin-top:.3rem">Chrome · Windows 11 · Hace 2 min</p></div>
+              <span style="background:#dcfce7;color:#16a34a;padding:.3rem .9rem;border-radius:999px;font-size:.8rem;font-weight:700">● Activa</span>
+            </div>
+            <button class="btn btn-d" style="font-size:.88rem" onclick="showOK('Sesiones cerradas','Todas las otras sesiones han sido cerradas.')">Cerrar todas las otras sesiones</button>
+          </div>
+        </div>
+
+        <!-- PREFERENCES TAB -->
+        <div id="tab-preferences" style="display:none">
+          <h2>Preferencias del Sistema</h2>
+          <div class="ss"><h3>Configuración eléctrica</h3>
+            <div class="fr">
+              <div class="fg"><label>Tarifa eléctrica ($/kWh)</label><input type="number" value="2.80" step="0.1" min="0.5"></div>
+              <div class="fg"><label>Proveedor CFE</label><select><option>CFE — Doméstica</option><option>CFE — DAC</option><option>CFE — Tarifa 1F</option></select></div>
+            </div>
+            <div class="fg"><label>Ciudad / Región solar</label><input type="text" value="Ciudad de México, CDMX"></div>
+            <div class="tr"><div class="trl"><h4>Optimización automática de energía</h4><p>El sistema ajusta el uso según producción</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Exportar excedentes a la red</h4><p>Net metering CFE activado</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+          </div>
+          <div class="ss" style="border:none"><h3>Región e idioma</h3>
+            <div class="fr">
+              <div class="fg"><label>Moneda</label><select><option>MXN — Peso Mexicano</option><option>USD — Dólar Americano</option></select></div>
+              <div class="fg"><label>Idioma</label><select><option>Español (México)</option><option>English (US)</option></select></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADVANCED TAB -->
+        <div id="tab-advanced" style="display:none">
+          <h2>Configuración Avanzada</h2>
+          <div class="ss"><h3>Almacenamiento y caché</h3>
+            <div style="background:#f9f9f9;border-radius:14px;padding:1.5rem;margin-bottom:1.25rem">
+              <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><span style="font-size:.9rem;color:#555">Caché de la app</span><span style="color:#f97316;font-weight:700">2.4 MB</span></div>
+              <div class="storage-bar"><div class="storage-fill" style="width:24%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin:.75rem 0 .5rem"><span style="font-size:.9rem;color:#555">Datos locales</span><span style="color:#f97316;font-weight:700">1.1 MB</span></div>
+              <div class="storage-bar"><div class="storage-fill" style="width:11%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin:.75rem 0 .5rem"><span style="font-size:.9rem;color:#555">Imágenes en caché</span><span style="color:#f97316;font-weight:700">8.7 MB</span></div>
+              <div class="storage-bar"><div class="storage-fill" style="width:87%"></div></div>
+            </div>
+            <button class="btn btn-s" onclick="showOK('Caché limpiada 🗑️','Se liberaron 12.2 MB de espacio. La app puede tardar más en cargar la primera vez.')">🗑️ Limpiar caché</button>
+          </div>
+          <div class="ss"><h3>Funciones experimentales (beta)</h3>
+            <div class="tr"><div class="trl"><h4>IA predictiva de producción</h4><p>Predice tu producción según el clima</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Modo ahorro de datos</h4><p>Reduce el consumo de datos móviles</p></div><label class="toggle"><input type="checkbox"><span class="ts"></span></label></div>
+            <div class="tr"><div class="trl"><h4>Dashboard en tiempo real</h4><p>Actualización cada segundo del monitor</p></div><label class="toggle"><input type="checkbox" checked><span class="ts"></span></label></div>
+          </div>
+          <div class="ss" style="border:none"><h3>Exportar datos</h3>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap">
+              <button class="btn btn-o" onclick="showOK('Exportando reporte 📊','Tu reporte energético será enviado a tu correo en 5 minutos.')">📊 Reporte energético</button>
+              <button class="btn btn-s" onclick="showOK('Historial exportado 📦','Descarga iniciada.')">📦 Historial de pedidos</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO TAB -->
+        <div id="tab-info" style="display:none">
+          <h2>Información de la App</h2>
+          <div style="text-align:center;padding:2rem 0">
+            <div style="font-size:5.5rem;margin-bottom:1.25rem">☀️</div>
+            <h3 style="font-size:2.3rem;color:#f97316;font-weight:900">SolarMind</h3>
+            <p style="color:#aaa;font-size:.95rem;margin:.4rem 0 .75rem">Versión 2.0.0 — Marzo 2026</p>
+            <p style="color:#666;max-width:460px;margin:0 auto 2.5rem;line-height:1.75;font-size:.93rem">Plataforma líder en gestión de energía solar para hogares y negocios en Latinoamérica. Comprometidos con un futuro sostenible y accesible.</p>
+            <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap">
+              <button class="btn btn-o" onclick="showOK('✅ App actualizada','Estás usando la versión más reciente: v2.0.0')">🔄 Buscar actualizaciones</button>
+              <button class="btn btn-s">📋 Términos de uso</button>
+              <button class="btn btn-s">🔒 Privacidad</button>
+            </div>
+            <div style="margin-top:2rem;padding:1.5rem;background:#fff8e1;border-radius:14px;border:1px solid #fde68a">
+              <p style="font-size:.85rem;color:#666">Desarrollado con ❤️ por el equipo SolarMind<br>Tecnología solar accesible para todos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ██ CHATBOT ██ -->
+<div class="cb-fab">
+  <div class="cb-win hide" id="cbWin">
+    <div class="cb-hdr">
+      <div class="cb-hdr-ico">☀️</div>
+      <div><h3>SolarBot IA</h3><p>Asistente inteligente solar · GPT-4</p></div>
+      <div class="cb-online" title="En línea"></div>
+    </div>
+    <div class="cb-msgs" id="cbMsgs">
+      <div class="msg-b bot">¡Hola! Soy <strong>SolarBot</strong>, tu asistente de energía solar con Inteligencia Artificial. 🌞</div>
+      <div class="msg-b bot">Puedo ayudarte con precios, cálculo de ahorros, instalaciones, financiamiento, mantenimiento y mucho más. ¿Qué necesitas?</div>
+    </div>
+    <div class="cb-inp">
+      <input type="text" id="cbIn" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()" title="Enviar">➤</button>
+    </div>
+  </div>
+  <button class="cb-toggle" id="cbBtn" onclick="toggleBot()" title="Chat SolarBot">💬</button>
+</div>
+
+<!-- ██ MODAL: LOGOUT ██ -->
+<div id="mLogout" class="modal">
+  <div class="mbox">
+    <button class="mcls" onclick="closeM('mLogout')">×</button>
+    <div class="mico err">🚪</div>
+    <h2>¿Cerrar Sesión?</h2>
+    <p class="msub">¿Estás seguro que deseas salir de SolarMind?<br>Tu sesión será cerrada de forma segura.</p>
+    <div class="macts">
+      <button class="btn btn-s" onclick="closeM('mLogout')">Cancelar</button>
+      <button class="btn btn-d" onclick="doLogout()">Sí, cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- ██ MODAL: SUCCESS ██ -->
+<div id="mOK" class="modal">
+  <div class="mbox">
+    <button class="mcls" onclick="closeM('mOK')">×</button>
+    <div class="mico ok" style="animation:popIn .4s ease">✓</div>
+    <h2 id="okT">¡Operación exitosa!</h2>
+    <p class="msub" id="okM">Completado correctamente.</p>
+    <button class="btn btn-p btn-full" onclick="closeM('mOK')">Entendido ✓</button>
+  </div>
+</div>
+
+<!-- ██ MODAL: QUOTE ██ -->
+<div id="mQuote" class="modal">
+  <div class="mbox wide">
+    <button class="mcls" onclick="closeM('mQuote')">×</button>
+    <h2>📋 Solicitar Cotización</h2>
+    <p class="msub"><strong id="qPlanInfo" style="color:#f97316"></strong></p>
+    <form onsubmit="submitQuote(event)">
+      <div class="fr">
+        <div class="fg"><label>Nombre completo</label><input type="text" id="qN" required placeholder="Tu nombre"></div>
+        <div class="fg"><label>Correo electrónico</label><input type="email" id="qE" required placeholder="tu@correo.com"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Teléfono</label><input type="tel" id="qT" required placeholder="+52 55 0000-0000"></div>
+        <div class="fg"><label>Ciudad</label><input type="text" id="qC" required placeholder="Ciudad de México"></div>
+      </div>
+      <div class="fg"><label>Dirección del domicilio</label><input type="text" id="qA" required placeholder="Calle, Número, Colonia"></div>
+      <div class="fg"><label>Notas adicionales</label><textarea id="qNote" placeholder="Tamaño del techo, consumo promedio, dudas..."></textarea></div>
+      <div class="macts">
+        <button type="button" class="btn btn-s" onclick="closeM('mQuote')">Cancelar</button>
+        <button type="submit" class="btn btn-p">📤 Enviar Solicitud</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ██ MODAL: PAYMENT ██ -->
+<div id="mPay" class="modal">
+  <div class="mbox wide">
+    <button class="mcls" onclick="closeM('mPay')">×</button>
+    <h2>💳 Finalizar Compra</h2>
+    <p class="msub">Total: <strong style="color:#f97316;font-size:1.3rem">$<span id="payTot">0</span> MXN</strong></p>
+    <div class="fg"><label>Método de pago</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem">
+        <div class="svc on" id="pm-card" onclick="setPay('card')"><div class="svc-ico">💳</div><p>Tarjeta</p></div>
+        <div class="svc" id="pm-transfer" onclick="setPay('transfer')"><div class="svc-ico">🏦</div><p>Transferencia</p></div>
+        <div class="svc" id="pm-paypal" onclick="setPay('paypal')"><div class="svc-ico">🅿️</div><p>PayPal</p></div>
+        <div class="svc" id="pm-oxxo" onclick="setPay('oxxo')"><div class="svc-ico">🏪</div><p>OXXO Pay</p></div>
+      </div>
+    </div>
+    <div id="cardF">
+      <div class="fr">
+        <div class="fg"><label>Nombre en la tarjeta</label><input type="text" id="pN" placeholder="Juan García Pérez"></div>
+        <div class="fg"><label>Email de confirmación</label><input type="email" id="pE" placeholder="tu@email.com"></div>
+      </div>
+      <div class="fg"><label>Número de tarjeta</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
+      <div class="fr">
+        <div class="fg"><label>Fecha de vencimiento</label><input type="text" placeholder="MM/AA" maxlength="5"></div>
+        <div class="fg"><label>Código CVV</label><input type="text" placeholder="123" maxlength="3"></div>
+      </div>
+    </div>
+    <div id="transferF" style="display:none;background:#f0f9ff;border-radius:12px;padding:1.25rem;border:1px solid #bae6fd;margin-top:1rem">
+      <p style="font-weight:700;margin-bottom:.5rem">📋 Datos para transferencia:</p>
+      <p style="font-size:.9rem;color:#555">Banco: BBVA · CLABE: 012180001234567890<br>Beneficiario: SolarMind SA de CV<br>Concepto: Tu número de pedido</p>
+    </div>
+    <div class="macts mt1">
+      <button class="btn btn-s" onclick="closeM('mPay')">Cancelar</button>
+      <button class="btn btn-p btn-lg" onclick="completeBuy()">🛒 Confirmar Pago</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// OPENAI API KEY — reemplaza con tu key real
+// Obtén una en: https://platform.openai.com/api-keys
+// ================================================================
+const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY';
+
+const SYS_PROMPT = `Eres SolarBot, el asistente virtual de SolarMind, empresa líder en energía solar residencial en México.
+
+PRODUCTOS: Panel 450W ($3,500 MXN), Panel 550W Premium ($4,500), Inversor 5kW WiFi ($12,000), Inversor 10kW ($22,000), Batería 5kWh LiFePO4 ($28,000), Batería 10kWh ($45,000), Kit Montaje ($2,500), Cable Solar ($1,200).
+
+PLANES: Básico $45,000 MXN (4 paneles+inversor 2kW) | Hogar $95,000 (8 paneles+inversor 5kW+batería 5kWh) [MÁS POPULAR] | Premium $180,000 (16 paneles 550W+inversor 10kW+batería 20kWh+IoT 5 años mantenimiento).
+
+GARANTÍAS: Paneles 25 años | Inversores y baterías 10 años | Instalación 5 años.
+AHORRO TÍPICO: $1,400-$2,100 MXN/mes con 8 paneles. ROI: 4-6 años.
+CONTACTO: +52 (55) 1234-5678 | asesores@solarmind.mx | WhatsApp: +52 55 9876-5432.
+
+Responde SIEMPRE en español, de forma amigable, profesional y concisa. Usa emojis con moderación. Si te preguntan algo ajeno a energía solar, redirige educadamente.`;
+
+// ================================================================
+// DATA
+// ================================================================
+const PRODS = [
+  {id:1,name:'Panel Solar 450W Monocristalino',price:3500,cat:'paneles',img:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=220&fit=crop',desc:'Eficiencia 21.5%. Ideal techos residenciales. Anti-granizo clase IK10.',stars:'★★★★★',specs:'450W · 21.5% eficiencia · MC4 incluidos'},
+  {id:2,name:'Panel Solar 550W Premium Bifacial',price:4500,cat:'paneles',img:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=220&fit=crop',desc:'Tecnología bifacial, hasta +30% producción trasera. Viento 2,400 Pa.',stars:'★★★★★',specs:'550W · Bifacial · Garantía 30 años'},
+  {id:3,name:'Inversor Híbrido 5kW WiFi',price:12000,cat:'inversores',img:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=220&fit=crop',desc:'Conecta paneles, baterías y red simultáneamente. App monitoreo incluida.',stars:'★★★★☆',specs:'5kW · Eficiencia 98.2% · IP65 · WiFi'},
+  {id:4,name:'Inversor Híbrido 10kW WiFi',price:22000,cat:'inversores',img:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=220&fit=crop',desc:'Triple MPPT para instalaciones grandes. Monitoreo en tiempo real.',stars:'★★★★★',specs:'10kW · Triple MPPT · IP65 · 3 fases'},
+  {id:5,name:'Batería LiFePO4 5kWh',price:28000,cat:'baterias',img:'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?w=400&h=220&fit=crop',desc:'6,000+ ciclos de carga. Autonomía 6-8h para hogar promedio. BMS integrado.',stars:'★★★★★',specs:'5kWh · 6,000 ciclos · BMS · IP55'},
+  {id:6,name:'Batería LiFePO4 10kWh',price:45000,cat:'baterias',img:'https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?w=400&h=220&fit=crop',desc:'Cascada ampliable hasta 30kWh. Gestión BMS avanzada. Temperatura -20°C a 60°C.',stars:'★★★★★',specs:'10kWh · Ampliable · BMS avanzado'},
+  {id:7,name:'Kit Montaje Aluminio Anodizado',price:2500,cat:'accesorios',img:'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&h=220&fit=crop',desc:'Compatible con todos los paneles. Resistente a corrosión. Instalación 2h.',stars:'★★★★☆',specs:'Aluminio 6061 · Anodizado · Universal'},
+  {id:8,name:'Cable Solar 6mm² x 50m UV',price:1200,cat:'accesorios',img:'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&h=220&fit=crop',desc:'Doble aislamiento UV resistente. Certificado TÜV Rheinland. Hasta 90°C.',stars:'★★★★☆',specs:'6mm² · 50m · TÜV · UV+ · 90°C'},
+];
+
+// ================================================================
+// STATE
+// ================================================================
+let cart=[], curFilter='all', selSvc=null, selTime=null, selPay='card';
+let chatHistory=[{role:'system',content:SYS_PROMPT}];
+let energyTimer=null;
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function goTo(pid, btn) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById(pid).classList.add('on');
+  document.querySelectorAll('.nb,.mn-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(pid==='cart') renderCart();
+  if(pid==='energy') initEnergy();
+  if(pid==='store'){calcROI();renderProds();}
+}
+
+// ================================================================
+// PRODUCTS
+// ================================================================
+function renderProds(list) {
+  const g=document.getElementById('prodGrid');
+  const items=list||PRODS.filter(p=>curFilter==='all'||p.cat===curFilter);
+  if(!items.length){g.innerHTML='<p style="grid-column:1/-1;text-align:center;color:#aaa;padding:3rem">No se encontraron productos.</p>';return;}
+  g.innerHTML=items.map(p=>`
+    <div class="pc">
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="pc-body">
+        <span class="pc-badge">${p.cat}</span>
+        <h3>${p.name}</h3>
+        <div class="pc-stars">${p.stars}</div>
+        <p class="pdesc">${p.desc}</p>
+        <div class="pc-specs">${p.specs}</div>
+        <div class="pc-price">$${p.price.toLocaleString()} <small>MXN</small></div>
+        <button class="btn btn-p btn-full" onclick="addCart(${p.id})">🛒 Agregar al carrito</button>
+      </div>
+    </div>
+  `).join('');
+}
+function setFilter(cat,btn){
+  curFilter=cat;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); filterProds();
+}
+function filterProds(){
+  const q=document.getElementById('srchBox').value.toLowerCase();
+  renderProds(PRODS.filter(p=>(curFilter==='all'||p.cat===curFilter)&&(p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q))));
+}
+
+// ================================================================
+// ROI CALCULATOR
+// ================================================================
+function calcROI(){
+  const bill=+document.getElementById('rBill').value;
+  const panels=+document.getElementById('rPanels').value;
+  const sun=+document.getElementById('rSun').value;
+  const rate=+document.getElementById('rRate').value;
+  document.getElementById('vBill').textContent='$'+bill.toLocaleString();
+  document.getElementById('vPanels').textContent=panels;
+  document.getElementById('vSun').textContent=sun+'h';
+  document.getElementById('vRate').textContent='$'+rate.toFixed(2);
+  const daily=+(panels*0.45*sun).toFixed(1);
+  const monthly=Math.round(daily*30);
+  const saving=Math.min(Math.round(bill*0.82),Math.round(monthly*rate));
+  const invest=panels*3500+12000;
+  const roi=(invest/(saving*12)).toFixed(1);
+  const co2=Math.round(daily*30*0.43);
+  document.getElementById('rD').textContent=daily+' kWh';
+  document.getElementById('rM').textContent=monthly+' kWh';
+  document.getElementById('rSm').textContent='$'+saving.toLocaleString()+' MXN';
+  document.getElementById('rSy').textContent='$'+(saving*12).toLocaleString()+' MXN';
+  document.getElementById('rInv').textContent='$'+invest.toLocaleString()+' MXN';
+  document.getElementById('rROI').textContent=roi+' años';
+  document.getElementById('rCO2').textContent=co2+' kg';
+}
+
+// ================================================================
+// QUOTES
+// ================================================================
+function openQuote(plan,price){
+  document.getElementById('qPlanInfo').textContent=plan+' — '+price+' MXN incluye IVA';
+  openM('mQuote');
+}
+function submitQuote(e){
+  e.preventDefault();
+  closeM('mQuote');
+  showOK('¡Cotización Enviada! 📋','Un asesor se pondrá en contacto en menos de 24h con tu propuesta personalizada.');
+}
+
+// ================================================================
+// APPOINTMENTS
+// ================================================================
+const TIMES=['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+function pickSvc(name,el){
+  selSvc=name;
+  document.querySelectorAll('.svc').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('btnN1').style.display='inline-flex';
+}
+function goStep(n){
+  for(let i=1;i<=4;i++){
+    document.getElementById('aS'+i).style.display=i===n?'block':'none';
+    const s=document.getElementById('as'+i);
+    s.classList.remove('active','done');
+    if(i===n)s.classList.add('active');
+    else if(i<n)s.classList.add('done');
+  }
+  if(n===3){
+    selTime=null;
+    document.getElementById('btnN3').style.display='none';
+    document.getElementById('slotsGrid').innerHTML=TIMES.map(t=>`<div class="slot" onclick="pickTime('${t}',this)">${t}</div>`).join('');
+  }
+}
+function pickTime(t,el){
+  selTime=t;
+  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('btnN3').style.display='inline-flex';
+}
+function submitApt(e){
+  e.preventDefault();
+  const name=document.getElementById('aN').value;
+  const date=document.getElementById('aptDt').value;
+  showOK('¡Cita Confirmada! 📅',`Servicio: ${selSvc}\nFecha: ${date} a las ${selTime}\nTécnico asignado para: ${name}\n\nRecibirás confirmación por email.`);
+  goStep(1);e.target.reset();selSvc=null;
+  document.querySelectorAll('.svc').forEach(s=>s.classList.remove('on'));
+  document.getElementById('btnN1').style.display='none';
+}
+
+// ================================================================
+// ENERGY DASHBOARD
+// ================================================================
+function initEnergy(){
+  clearInterval(energyTimer);
+  drawHour();drawWeek();fillTable();
+  let t=0;
+  energyTimer=setInterval(()=>{
+    t++;
+    const p=+(3.8+Math.sin(t*.3)*.95).toFixed(1);
+    const c=+(2.5+Math.sin(t*.18)*.6).toFixed(1);
+    const b=Math.round(74+Math.sin(t*.08)*9);
+    const g=+(Math.max(0,p-c)).toFixed(1);
+    const saved=280+Math.round(Math.sin(t*.05)*42);
+    document.getElementById('ev1').textContent=p+' kW';
+    document.getElementById('ev2').textContent=c+' kW';
+    document.getElementById('ev3').textContent=b+'%';
+    document.getElementById('ev4').textContent=g+' kW';
+    document.getElementById('ev5').textContent='$'+saved.toLocaleString();
+    document.getElementById('ev6').textContent=Math.round(38+Math.sin(t*.04)*6)+' kg';
+    // Gauges
+    document.getElementById('g1').setAttribute('stroke-dashoffset',235-(p/6*235));
+    document.getElementById('gt1').textContent=p;
+    document.getElementById('g2').setAttribute('stroke-dashoffset',235-(b/100*235));
+    document.getElementById('gt2').textContent=b+'%';
+    document.getElementById('g3').setAttribute('stroke-dashoffset',235-(c/5*235));
+    document.getElementById('gt3').textContent=c;
+  },2000);
+}
+function drawHour(){
+  const hrs=['6am','7am','8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm'];
+  const sol=[0,.4,1.1,2.4,3.7,4.3,4.8,4.4,3.8,3.0,1.9,.7];
+  const con=[1.9,1.6,1.3,1.5,2.0,2.4,2.9,2.6,2.3,2.5,2.7,3.0];
+  const mx=5;
+  document.getElementById('hourChart').innerHTML=hrs.map((h,i)=>`
+    <div class="bw">
+      <div class="bar sol" style="height:${(sol[i]/mx)*145}px" title="☀️ ${sol[i]} kW"></div>
+      <div class="bar con" style="height:${(con[i]/mx)*145}px" title="🏠 ${con[i]} kW"></div>
+      <div class="blbl">${h}</div>
+    </div>`).join('');
+}
+function drawWeek(){
+  const days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const data=[18.4,22.1,19.3,25.6,28.2,30.5,14.8];const mx=35;
+  document.getElementById('weekChart').innerHTML=days.map((d,i)=>`
+    <div class="bw">
+      <div class="bar sol" style="height:${(data[i]/mx)*145}px" title="${data[i]} kWh"></div>
+      <div class="blbl">${d}<br><span style="font-size:.62rem;font-weight:600;color:#f97316">${data[i]}</span></div>
+    </div>`).join('');
+}
+function fillTable(){
+  const rows=[
+    {w:'Semana 1',p:128,c:89,trend:'up'},
+    {w:'Semana 2',p:145,c:95,trend:'up'},
+    {w:'Semana 3',p:132,c:88,trend:'dn'},
+    {w:'Semana 4',p:158,c:102,trend:'up'},
+  ];
+  document.getElementById('eTBody').innerHTML=rows.map(r=>`
+    <tr>
+      <td>${r.w}</td>
+      <td style="color:#f97316;font-weight:600">${r.p} kWh</td>
+      <td style="color:#3b82f6">${r.c} kWh</td>
+      <td style="color:#10b981;font-weight:600">+${r.p-r.c} kWh</td>
+      <td style="color:#10b981;font-weight:700">$${Math.round((r.p-r.c)*2.8).toLocaleString()}</td>
+      <td>${Math.round((r.p-r.c)*0.43)} kg CO₂</td>
+      <td class="${r.trend==='up'?'trend-up':'trend-dn'}">${r.trend==='up'?'↑ +12%':'↓ -8%'}</td>
+    </tr>`).join('');
+}
+
+// ================================================================
+// CART
+// ================================================================
+function addCart(id){
+  const p=PRODS.find(x=>x.id===id);
+  const ex=cart.find(x=>x.id===id);
+  if(ex)ex.qty++;else cart.push({...p,qty:1});
+  updateBadge();
+  notif('🛒 Producto agregado',p.name+' añadido al carrito','ok');
+}
+function updateBadge(){
+  const n=cart.reduce((s,x)=>s+x.qty,0);
+  const b=document.getElementById('cartBadge');
+  b.textContent=n;b.style.display=n>0?'inline-block':'none';
+}
+function renderCart(){
+  const c=document.getElementById('cartWrap');
+  if(!cart.length){
+    c.innerHTML=`<div class="empty-cart"><div class="empty-ico">🛒</div><h3 style="font-size:1.8rem;margin-bottom:.75rem">Tu carrito está vacío</h3><p style="color:#aaa;margin-bottom:2rem">¡Agrega productos desde nuestra tienda solar!</p><button class="btn btn-p btn-lg" onclick="goTo('store')">☀️ Ir a la Tienda</button></div>`;
+    return;
+  }
+  const sub=cart.reduce((s,x)=>s+x.price*x.qty,0);
+  const iva=Math.round(sub*.16);
+  const total=sub+iva;
+  c.innerHTML=`<div class="cart-layout">
+    <div>${cart.map(x=>`
+      <div class="cart-item">
+        <img src="${x.img}" alt="${x.name}">
+        <div class="ci-inf">
+          <h4>${x.name}</h4>
+          <p>${x.specs||x.cat}</p>
+          <p>$${x.price.toLocaleString()} MXN c/u</p>
+          <p class="sbt">Subtotal: $${(x.price*x.qty).toLocaleString()} MXN</p>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qb" onclick="chgQty(${x.id},-1)">−</button>
+          <span class="qn">${x.qty}</span>
+          <button class="qb" onclick="chgQty(${x.id},1)">+</button>
+          <button class="btn btn-d" style="padding:.5rem .75rem;font-size:.85rem" onclick="rmCart(${x.id})">🗑️</button>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="cart-summary">
+      <h3>📦 Resumen del pedido</h3>
+      <div class="cs-row"><span>Subtotal (sin IVA)</span><span>$${sub.toLocaleString()} MXN</span></div>
+      <div class="cs-row"><span>IVA (16%)</span><span>$${iva.toLocaleString()} MXN</span></div>
+      <div class="cs-row"><span>Envío</span><span style="color:#10b981">🎁 Gratis</span></div>
+      <div class="cs-row"><span>Total</span><span>$${total.toLocaleString()} MXN</span></div>
+      <button class="btn btn-p btn-full mt1" onclick="openPayModal(${total})">💳 Proceder al pago</button>
+      <button class="btn btn-s btn-full mt1" onclick="goTo('store')">← Seguir comprando</button>
+      <p style="font-size:.78rem;color:#aaa;text-align:center;margin-top:1rem">🔒 Pago seguro encriptado SSL</p>
+    </div>
+  </div>`;
+}
+function chgQty(id,d){const x=cart.find(i=>i.id===id);if(x){x.qty+=d;if(x.qty<=0)rmCart(id);else renderCart();}updateBadge();}
+function rmCart(id){cart=cart.filter(x=>x.id!==id);updateBadge();renderCart();}
+
+// ================================================================
+// PAYMENT
+// ================================================================
+function openPayModal(t){document.getElementById('payTot').textContent=t.toLocaleString();openM('mPay');}
+function fmtCard(el){let v=el.value.replace(/\D/g,'').substring(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function setPay(m){
+  selPay=m;
+  ['card','transfer','paypal','oxxo'].forEach(p=>document.getElementById('pm-'+p).classList.remove('on'));
+  document.getElementById('pm-'+m).classList.add('on');
+  document.getElementById('cardF').style.display=m==='card'?'block':'none';
+  document.getElementById('transferF').style.display=m==='transfer'?'block':'none';
+}
+function completeBuy(){
+  closeM('mPay');cart=[];updateBadge();
+  showOK('¡Compra Exitosa! 🎉','Tu pedido fue confirmado. Recibirás un email de confirmación. ¡Gracias por elegir SolarMind!');
+  renderCart();
+}
+
+// ================================================================
+// SETTINGS
+// ================================================================
+function setTab(tab,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(e=>e.style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  document.querySelectorAll('.sni').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function saveProfile(){
+  const n=document.getElementById('sN').value;
+  document.getElementById('avatarCirc').textContent=n?n[0].toUpperCase():'👤';
+  showOK('Perfil guardado ✓','Tus datos han sido actualizados correctamente.');
+}
+function pickTheme(t,btn){
+  btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.body.classList.remove('dark');
+  if(t==='dark')document.body.classList.add('dark');
+  notif('🎨 Tema cambiado','Apariencia: '+t,'in');
+}
+function pickAccent(c,n,btn){
+  btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.documentElement.style.setProperty('--sol',c);
+  notif('🎨 Color cambiado','Acento: '+n,'in');
+}
+function setFontSz(s,btn){
+  btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.documentElement.style.fontSize=s;
+  notif('🔡 Fuente ajustada','Tamaño: '+s,'in');
+}
+
+// ================================================================
+// CONTACT
+// ================================================================
+function handleContact(e){
+  e.preventDefault();
+  const n=document.getElementById('cN').value;
+  showOK('¡Mensaje Enviado! 📧',`Gracias ${n}. Te responderemos en menos de 24 horas a tu correo registrado.`);
+  e.target.reset();
+}
+
+// ================================================================
+// MODALS
+// ================================================================
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function showOK(t,m){document.getElementById('okT').textContent=t;document.getElementById('okM').textContent=m;openM('mOK');}
+window.addEventListener('click',e=>{document.querySelectorAll('.modal.open').forEach(m=>{if(e.target===m)m.classList.remove('open');});});
+
+// ================================================================
+// LOGOUT
+// ================================================================
+function doLogout(){
+  closeM('mLogout');
+  document.body.innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#fbbf24,#f97316,#ea580c);display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:Segoe UI,sans-serif;padding:2rem"><div><div style="font-size:6rem;margin-bottom:1.5rem">☀️</div><h1 style="font-size:3.5rem;font-weight:900;margin-bottom:.5rem">¡Hasta pronto!</h1><p style="font-size:1.2rem;opacity:.88;margin-bottom:2.5rem;line-height:1.6">Sesión cerrada exitosamente.<br>Gracias por usar SolarMind.</p><button onclick="location.reload()" style="padding:1.1rem 3rem;background:#fff;color:#f97316;border:none;border-radius:999px;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2)">← Volver a iniciar sesión</button></div></div>`;
+}
+
+// ================================================================
+// CHATBOT CON IA — OpenAI GPT-4o-mini
+// ================================================================
+function toggleBot(){
+  const w=document.getElementById('cbWin');
+  w.classList.toggle('hide');
+  document.getElementById('cbBtn').textContent=w.classList.contains('hide')?'💬':'✕';
+}
+async function sendMsg(){
+  const inp=document.getElementById('cbIn');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  appendMsg(text,'user');
+  chatHistory.push({role:'user',content:text});
+  const td=document.createElement('div');
+  td.className='typing-dots';td.id='typing';
+  td.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  document.getElementById('cbMsgs').appendChild(td);
+  scrollChat();
+  try{
+    let reply;
+    if(OPENAI_API_KEY&&OPENAI_API_KEY!=='YOUR_OPENAI_API_KEY'){
+      const res=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},
+        body:JSON.stringify({model:'gpt-4o-mini',messages:chatHistory,max_tokens:450,temperature:.7})
+      });
+      const data=await res.json();
+      if(data.error)throw new Error(data.error.message);
+      reply=data.choices[0].message.content;
+    }else{
+      await new Promise(r=>setTimeout(r,900+Math.random()*600));
+      reply=getFallback(text.toLowerCase());
+    }
+    chatHistory.push({role:'assistant',content:reply});
+    document.getElementById('typing')?.remove();
+    appendMsg(reply,'bot');
+  }catch(err){
+    document.getElementById('typing')?.remove();
+    appendMsg('Lo siento, hubo un error de conexión. Contáctanos al +52 (55) 1234-5678 o WhatsApp. 😊','bot');
+  }
+}
+function appendMsg(text,role){
+  const m=document.getElementById('cbMsgs');
+  const d=document.createElement('div');
+  d.className='msg-b '+role;d.textContent=text;
+  m.appendChild(d);scrollChat();
+}
+function scrollChat(){const m=document.getElementById('cbMsgs');m.scrollTop=m.scrollHeight;}
+function getFallback(msg){
+  if(msg.includes('precio')||msg.includes('cost'))return'Los paneles van desde $3,500 MXN. Los planes completos desde $45,000 hasta $180,000 MXN con instalación incluida. ☀️';
+  if(msg.includes('panel'))return'Tenemos paneles monocristalinos 450W ($3,500) y bifaciales 550W ($4,500). Ambos con garantía 25 años y certificación IEC. 🌞';
+  if(msg.includes('bater'))return'Baterías LiFePO4: 5kWh ($28,000) y 10kWh ($45,000). Con BMS integrado y 6,000+ ciclos de vida útil. 🔋';
+  if(msg.includes('invers'))return'Inversores híbridos: 5kW WiFi ($12,000) y 10kW WiFi ($22,000). Conectan paneles, baterías y red con monitoreo en tiempo real. ⚡';
+  if(msg.includes('ahorro')||msg.includes('roi'))return'Con 8 paneles ahorras entre $1,400 y $2,100 MXN al mes. El retorno de inversión es de 4-6 años. ¡Usa nuestra calculadora ROI en la Tienda! 💰';
+  if(msg.includes('plan')||msg.includes('instalac'))return'3 planes todo incluido:\n🌱 Básico $45,000 (4 paneles)\n⭐ Hogar $95,000 (8 paneles + batería) [más popular]\n🏆 Premium $180,000 (16 paneles + IoT)';
+  if(msg.includes('cita')||msg.includes('servicio')||msg.includes('técnico'))return'Agenda tu cita técnica en la sección Tienda. Tenemos disponibilidad Lun-Sáb 9am-5pm. Nuestros técnicos van a tu domicilio. 📅';
+  if(msg.includes('contact')||msg.includes('teléfono')||msg.includes('correo'))return'📞 +52 (55) 1234-5678\n📧 asesores@solarmind.mx\n💬 WhatsApp: +52 55 9876-5432\nHorario: Lun-Vie 9am-6pm';
+  if(msg.includes('garantia')||msg.includes('garantía'))return'✅ Paneles: 25 años producción + 12 años producto\n✅ Inversores y baterías: 10 años\n✅ Instalación: 5 años\n✅ Servicio técnico: respuesta 24h';
+  if(msg.includes('financiam')||msg.includes('crédito')||msg.includes('pago'))return'Ofrecemos opciones de financiamiento: Meses sin intereses con tarjeta bancaria, crédito verde BANOBRAS, y convenio con principales bancos. ¡Consulta con un asesor! 💳';
+  if(msg.includes('hola')||msg.includes('buenas')||msg.includes('hi')||msg.includes('buenos'))return'¡Hola! 👋 Bienvenido a SolarMind. Soy SolarBot y puedo ayudarte con todo sobre energía solar. ¿Qué necesitas? 🌞';
+  if(msg.includes('gracias'))return'¡De nada! 😊 Es un placer ayudarte. ¿Hay algo más en lo que pueda orientarte sobre tu proyecto solar?';
+  if(msg.includes('mantenimiento'))return'Ofrecemos mantenimiento preventivo anual incluido en el Plan Hogar y Premium. También puedes agendar un servicio desde la sección Tienda. Los técnicos van a tu domicilio. 🔧';
+  return'Gracias por tu consulta. Para una asesoría personalizada y detallada, contáctanos al +52 (55) 1234-5678 o WhatsApp +52 55 9876-5432. Nuestros expertos solares están listos para ayudarte. ☀️';
+}
+
+// ================================================================
+// NOTIFICATIONS
+// ================================================================
+function notif(title,msg,type='ok'){
+  const c=document.getElementById('notifC');
+  const n=document.createElement('div');n.className='notif';
+  const icons={ok:'✓',pr:'⭐',in:'ℹ',warn:'⚠'};
+  n.innerHTML=`<div class="n-ico ${type}">${icons[type]||'!'}</div><div class="n-txt"><h4>${title}</h4><p>${msg}</p></div><button class="n-x" onclick="this.parentElement.remove()">×</button><div class="n-bar"></div>`;
+  c.appendChild(n);setTimeout(()=>n.remove(),5300);
+}
+function schedNotifs(){
+  setTimeout(()=>notif('⭐ Oferta especial','20% descuento en paneles solares este mes','pr'),8000);
+  setTimeout(()=>notif('💡 Ahorro potencial','Con 8 paneles ahorras ~$2,100 MXN/mes','in'),25000);
+  setTimeout(()=>notif('🔋 Nuevo en stock','Batería LiFePO4 10kWh disponible','ok'),45000);
+  setTimeout(()=>notif('☀️ Tip solar','Limpia tus paneles cada 3 meses para +15% eficiencia','warn'),70000);
+}
+
+// ================================================================
+// PARTICLES
+// ================================================================
+function initParticles(){
+  const bg=document.getElementById('animBg');
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');p.className='particle';
+    const sz=3+Math.random()*8;
+    p.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*7}s;animation-duration:${5+Math.random()*6}s;`;
+    bg.appendChild(p);
+  }
+}
+
+// ================================================================
+// INIT
+// ================================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  renderProds();calcROI();updateBadge();schedNotifs();initParticles();
+  // Min date for appointments
+  const td=new Date().toISOString().split('T')[0];
+  const aptDt=document.getElementById('aptDt');
+  if(aptDt)aptDt.min=td;
+  // Exit warning
+  window.addEventListener('beforeunload',e=>{e.preventDefault();e.returnValue='';});
+  // Keyboard shortcut: ESC closes modals
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape')document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
+    if(e.key==='Enter'&&document.getElementById('cbWin')&&!document.getElementById('cbWin').classList.contains('hide'))sendMsg();
+  });
+});
+</script>
+</body>
+</html>
