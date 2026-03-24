@@ -1145,15 +1145,11 @@ footer a:hover{text-decoration:underline;}
 </div>
 
 <script>
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 // ================================================================
-// GEMINI API KEY — Reemplaza con tu clave de Google AI Studio
-// Obtén una gratis en: https://aistudio.google.com/
+// OPENAI API KEY — reemplaza con tu key real
+// Obtén una en: https://platform.openai.com/api-keys
 // ================================================================
-const GEMINI_API_KEY = 'AIzaSyA1kSvSj2hcoi3Ha83W7DGdSDPmKuMLfQo';
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY';
 
 const SYS_PROMPT = `Eres SolarBot, el asistente virtual de SolarMind, empresa líder en energía solar residencial en México.
 
@@ -1167,33 +1163,9 @@ CONTACTO: +52 (55) 1234-5678 | asesores@solarmind.mx | WhatsApp: +52 55 9876-543
 
 Responde SIEMPRE en español, de forma amigable, profesional y concisa. Usa emojis con moderación. Si te preguntan algo ajeno a energía solar, redirige educadamente.`;
 
-// 1. Configuración del modelo con las instrucciones del sistema
-const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash",
-    systemInstruction: SYS_PROMPT 
-});
-
-// 2. Función principal para procesar el chat
-async function chatConSolarBot(mensajeUsuario) {
-    try {
-        // Iniciamos el chat (puedes pasar un historial aquí si lo necesitas)
-        const chat = model.startChat();
-
-        const result = await chat.sendMessage(mensajeUsuario);
-        const response = await result.response;
-        const textoRespuesta = response.text();
-
-        console.log("SolarBot dice:", textoRespuesta);
-        return textoRespuesta;
-
-    } catch (error) {
-        console.error("Error al conectar con la API de Gemini:", error);
-        return "Lo siento, tuve un pequeño problema técnico. ¿Podrías repetirme tu duda?";
-    }
-}
-
-// Ejemplo de prueba
-// chatConSolarBot("Hola, ¿cuánto cuesta el plan más popular?");
+// ================================================================
+// DATA
+// ================================================================
 const PRODS = [
   {id:1,name:'Panel Solar 450W Monocristalino',price:3500,cat:'paneles',img:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=220&fit=crop',desc:'Eficiencia 21.5%. Ideal techos residenciales. Anti-granizo clase IK10.',stars:'★★★★★',specs:'450W · 21.5% eficiencia · MC4 incluidos'},
   {id:2,name:'Panel Solar 550W Premium Bifacial',price:4500,cat:'paneles',img:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=220&fit=crop',desc:'Tecnología bifacial, hasta +30% producción trasera. Viento 2,400 Pa.',stars:'★★★★★',specs:'550W · Bifacial · Garantía 30 años'},
@@ -1539,82 +1511,75 @@ window.addEventListener('click',e=>{document.querySelectorAll('.modal.open').for
 // ================================================================
 function doLogout(){
   closeM('mLogout');
-  document.body.innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#fbbf24,#f97316,#ea580c);display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:Segoe UI,sans-serif;padding:2rem"><div><div style="font-size:6rem;margin-bottom:1.5rem">☀️</div><h1 style="font-size:3.5rem;font-weight:900;margin-bottom:.5rem">¡Hasta pronto!</h1><p style="font-size:1.2rem;opacity:.88;margin-bottom:2.5rem;line-height:1.6">Sesión cerrada exitosamente.<br>Gracias por usar SolarMind.</p><button onclick="location.href='index.html'" style="padding:1.1rem 3rem;background:#fff;color:#f97316;border:none;border-radius:999px;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2)">← Volver a iniciar sesión</button></div></div>`;
+  document.body.innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#fbbf24,#f97316,#ea580c);display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:Segoe UI,sans-serif;padding:2rem"><div><div style="font-size:6rem;margin-bottom:1.5rem">☀️</div><h1 style="font-size:3.5rem;font-weight:900;margin-bottom:.5rem">¡Hasta pronto!</h1><p style="font-size:1.2rem;opacity:.88;margin-bottom:2.5rem;line-height:1.6">Sesión cerrada exitosamente.<br>Gracias por usar SolarMind.</p><button onclick="location.reload()" style="padding:1.1rem 3rem;background:#fff;color:#f97316;border:none;border-radius:999px;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2)">← Volver a iniciar sesión</button></div></div>`;
 }
 
 // ================================================================
-// CHATBOT CON IA — Adaptado para Google Gemini 2.5 Flash
+// CHATBOT CON IA — OpenAI GPT-4o-mini
 // ================================================================
-
-// Reemplaza con tu clave de Google AI Studio
-const GEMINI_API_KEY = 'AIzaSyA1kSvSj2hcoi3Ha83W7DGdSDPmKuMLfQo'; 
-
-async function sendMsg() {
-  const inp = document.getElementById('cbIn');
-  const text = inp.value.trim();
-  if (!text) return;
-
-  inp.value = '';
-  appendMsg(text, 'user');
-  
-  // Adaptamos el historial al formato de Gemini (user/model)
-  chatHistory.push({ role: 'user', parts: [{ text: text }] });
-
-  const td = document.createElement('div');
-  td.className = 'typing-dots';
-  td.id = 'typing';
-  td.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+function toggleBot(){
+  const w=document.getElementById('cbWin');
+  w.classList.toggle('hide');
+  document.getElementById('cbBtn').textContent=w.classList.contains('hide')?'💬':'✕';
+}
+async function sendMsg(){
+  const inp=document.getElementById('cbIn');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  appendMsg(text,'user');
+  chatHistory.push({role:'user',content:text});
+  const td=document.createElement('div');
+  td.className='typing-dots';td.id='typing';
+  td.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
   document.getElementById('cbMsgs').appendChild(td);
   scrollChat();
-
-  try {
+  try{
     let reply;
-    // Verificamos que la KEY no sea la de ejemplo
-    if (GEMINI_API_KEY && !GEMINI_API_KEY.includes('AIza')) {
-      
-      // Endpoint oficial de la API de Gemini para v1beta
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: chatHistory, // Gemini usa 'contents'
-          systemInstruction: { // Aquí va tu prompt de SolarBot
-            parts: [{ text: SYS_PROMPT }]
-          },
-          generationConfig: {
-            maxOutputTokens: 450,
-            temperature: 0.7
-          }
-        })
+    if(OPENAI_API_KEY&&OPENAI_API_KEY!=='YOUR_OPENAI_API_KEY'){
+      const res=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},
+        body:JSON.stringify({model:'gpt-4o-mini',messages:chatHistory,max_tokens:450,temperature:.7})
       });
-
-      const data = await res.json();
-      
-      if (data.error) throw new Error(data.error.message);
-      
-      // Extraemos la respuesta del formato de Google
-      reply = data.candidates[0].content.parts[0].text;
-      
-    } else {
-      // Lógica de respaldo (Fallback) si no hay API Key válida
-      await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
-      reply = getFallback(text.toLowerCase());
+      const data=await res.json();
+      if(data.error)throw new Error(data.error.message);
+      reply=data.choices[0].message.content;
+    }else{
+      await new Promise(r=>setTimeout(r,900+Math.random()*600));
+      reply=getFallback(text.toLowerCase());
     }
-
-    // Guardamos la respuesta en el historial con el rol 'model' (así lo llama Gemini)
-    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
-    
+    chatHistory.push({role:'assistant',content:reply});
     document.getElementById('typing')?.remove();
-    appendMsg(reply, 'bot');
-
-  } catch (err) {
-    console.error("Error Gemini:", err);
+    appendMsg(reply,'bot');
+  }catch(err){
     document.getElementById('typing')?.remove();
-    appendMsg('Lo siento, hubo un error de conexión. Contáctanos al +52 (55) 1234-5678 o WhatsApp. 😊', 'bot');
+    appendMsg('Lo siento, hubo un error de conexión. Contáctanos al +52 (55) 1234-5678 o WhatsApp. 😊','bot');
   }
 }
+function appendMsg(text,role){
+  const m=document.getElementById('cbMsgs');
+  const d=document.createElement('div');
+  d.className='msg-b '+role;d.textContent=text;
+  m.appendChild(d);scrollChat();
+}
+function scrollChat(){const m=document.getElementById('cbMsgs');m.scrollTop=m.scrollHeight;}
+function getFallback(msg){
+  if(msg.includes('precio')||msg.includes('cost'))return'Los paneles van desde $3,500 MXN. Los planes completos desde $45,000 hasta $180,000 MXN con instalación incluida. ☀️';
+  if(msg.includes('panel'))return'Tenemos paneles monocristalinos 450W ($3,500) y bifaciales 550W ($4,500). Ambos con garantía 25 años y certificación IEC. 🌞';
+  if(msg.includes('bater'))return'Baterías LiFePO4: 5kWh ($28,000) y 10kWh ($45,000). Con BMS integrado y 6,000+ ciclos de vida útil. 🔋';
+  if(msg.includes('invers'))return'Inversores híbridos: 5kW WiFi ($12,000) y 10kW WiFi ($22,000). Conectan paneles, baterías y red con monitoreo en tiempo real. ⚡';
+  if(msg.includes('ahorro')||msg.includes('roi'))return'Con 8 paneles ahorras entre $1,400 y $2,100 MXN al mes. El retorno de inversión es de 4-6 años. ¡Usa nuestra calculadora ROI en la Tienda! 💰';
+  if(msg.includes('plan')||msg.includes('instalac'))return'3 planes todo incluido:\n🌱 Básico $45,000 (4 paneles)\n⭐ Hogar $95,000 (8 paneles + batería) [más popular]\n🏆 Premium $180,000 (16 paneles + IoT)';
+  if(msg.includes('cita')||msg.includes('servicio')||msg.includes('técnico'))return'Agenda tu cita técnica en la sección Tienda. Tenemos disponibilidad Lun-Sáb 9am-5pm. Nuestros técnicos van a tu domicilio. 📅';
+  if(msg.includes('contact')||msg.includes('teléfono')||msg.includes('correo'))return'📞 +52 (55) 1234-5678\n📧 asesores@solarmind.mx\n💬 WhatsApp: +52 55 9876-5432\nHorario: Lun-Vie 9am-6pm';
+  if(msg.includes('garantia')||msg.includes('garantía'))return'✅ Paneles: 25 años producción + 12 años producto\n✅ Inversores y baterías: 10 años\n✅ Instalación: 5 años\n✅ Servicio técnico: respuesta 24h';
+  if(msg.includes('financiam')||msg.includes('crédito')||msg.includes('pago'))return'Ofrecemos opciones de financiamiento: Meses sin intereses con tarjeta bancaria, crédito verde BANOBRAS, y convenio con principales bancos. ¡Consulta con un asesor! 💳';
+  if(msg.includes('hola')||msg.includes('buenas')||msg.includes('hi')||msg.includes('buenos'))return'¡Hola! 👋 Bienvenido a SolarMind. Soy SolarBot y puedo ayudarte con todo sobre energía solar. ¿Qué necesitas? 🌞';
+  if(msg.includes('gracias'))return'¡De nada! 😊 Es un placer ayudarte. ¿Hay algo más en lo que pueda orientarte sobre tu proyecto solar?';
+  if(msg.includes('mantenimiento'))return'Ofrecemos mantenimiento preventivo anual incluido en el Plan Hogar y Premium. También puedes agendar un servicio desde la sección Tienda. Los técnicos van a tu domicilio. 🔧';
+  return'Gracias por tu consulta. Para una asesoría personalizada y detallada, contáctanos al +52 (55) 1234-5678 o WhatsApp +52 55 9876-5432. Nuestros expertos solares están listos para ayudarte. ☀️';
+}
+
 // ================================================================
 // NOTIFICATIONS
 // ================================================================
