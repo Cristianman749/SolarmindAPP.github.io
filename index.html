@@ -1180,7 +1180,7 @@
                 </div>
             </div>
 
-            <button class="login-button" onclick="navigateTo('inicio')">INGRESAR</button>
+            <button class="login-button" onclick="irAApp()">INGRESAR</button>
 
             <div class="register-box">
                 <p>
@@ -1366,10 +1366,15 @@
     </div>
 
     <script>
-        // Navigation
+       // Navigation
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+        }
+
+        // NUEVA FUNCIÓN AGREGADA ✅
+        function irAApp() {
+            window.location.href = 'app.html';
         }
 
         // Splash progress
