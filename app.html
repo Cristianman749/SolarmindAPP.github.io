@@ -452,6 +452,36 @@ footer a:hover{text-decoration:underline;}
   .contact-box{padding:2rem 1.5rem;}
   body{padding-bottom:70px;}
 }
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 160px;
+  width: 100%;
+  overflow-x: auto; /* Permite scroll en móviles si hay muchas barras */
+  padding-bottom: 10px;
+}
+.bw {
+  flex: 1;
+  min-width: 35px; /* Evita que las barras se compriman demasiado */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.bar {
+  width: 85%;
+  border-radius: 7px 7px 0 0;
+  transition: height .9s cubic-bezier(.4,0,.2,1);
+}
+.bar.sol{background:linear-gradient(to top,#fbbf24,#f97316);}
+.bar.con{background:linear-gradient(to top,#60a5fa,#3b82f6);}
+.msg-b {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  word-wrap: break-word; /* Para que textos largos no se salgan del cuadro */
+}
 </style>
 </head>
 <body>
@@ -890,33 +920,41 @@ footer a:hover{text-decoration:underline;}
       <div class="scont">
         <!-- PROFILE TAB -->
         <div id="tab-profile">
-          <h2>Mi Perfil</h2>
-          <div class="ss">
-            <h3>Foto de perfil</h3>
-            <div class="avatar-circ" id="avatarCirc" onclick="notif('📷 Foto','Función de cámara disponible en la app móvil','in')">👤</div>
-            <p style="color:#aaa;font-size:.82rem;margin-bottom:1.5rem">Toca para cambiar tu foto de perfil</p>
-          </div>
-          <div class="ss">
-            <h3>Información personal</h3>
-            <div class="fr">
-              <div class="fg"><label>Nombre</label><input type="text" id="sN" value="Usuario Solar"></div>
-              <div class="fg"><label>Apellido</label><input type="text" id="sA" value="SolarMind"></div>
-            </div>
-            <div class="fg"><label>Correo electrónico</label><input type="email" id="sE" value="usuario@solarmind.mx"></div>
-            <div class="fr">
-              <div class="fg"><label>Teléfono</label><input type="tel" id="sTel" value="+52 55 1234-5678"></div>
-              <div class="fg"><label>Ciudad</label><input type="text" id="sC" value="Ciudad de México"></div>
-            </div>
-          </div>
-          <div class="ss" style="border:none">
-            <h3>Sistema solar registrado</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-              <div class="fg"><label>Número de paneles</label><input type="number" value="8" min="1" max="50"></div>
-              <div class="fg"><label>Capacidad inversor</label><select><option>2 kW</option><option selected>5 kW</option><option>10 kW</option></select></div>
-            </div>
-            <button class="btn btn-p" onclick="saveProfile()">💾 Guardar Cambios</button>
-          </div>
-        </div>
+  <h2>Mi Perfil</h2>
+  <div class="ss">
+    <h3>Foto de perfil</h3>
+    <div class="avatar-circ" id="avatarCirc" onclick="document.getElementById('avatarInput').click()" style="cursor:pointer; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+      <span id="avatarIcon">👤</span>
+      <img id="userAvatarDisplay" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+    </div>
+    
+    <input type="file" id="avatarInput" accept="image/*" style="display:none">
+    
+    <p style="color:#aaa;font-size:.82rem;margin-bottom:1.5rem">Toca el círculo para cambiar tu foto de perfil</p>
+  </div>
+
+  <div class="ss">
+    <h3>Información personal</h3>
+    <div class="fr">
+      <div class="fg"><label>Nombre</label><input type="text" id="sN" value="Usuario Solar"></div>
+      <div class="fg"><label>Apellido</label><input type="text" id="sA" value="SolarMind"></div>
+    </div>
+    <div class="fg"><label>Correo electrónico</label><input type="email" id="sE" value="usuario@solarmind.mx"></div>
+    <div class="fr">
+      <div class="fg"><label>Teléfono</label><input type="tel" id="sTel" value="+52 55 1234-5678"></div>
+      <div class="fg"><label>Ciudad</label><input type="text" id="sC" value="Ciudad de México"></div>
+    </div>
+  </div>
+  
+  <div class="ss" style="border:none">
+    <h3>Sistema solar registrado</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="fg"><label>Número de paneles</label><input type="number" value="8" min="1" max="50"></div>
+      <div class="fg"><label>Capacidad inversor</label><select><option>2 kW</option><option selected>5 kW</option><option>10 kW</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="saveProfile()">💾 Guardar Cambios</button>
+  </div>
+</div>
 
         <!-- APPEARANCE TAB -->
         <div id="tab-appearance" style="display:none">
@@ -1043,18 +1081,24 @@ footer a:hover{text-decoration:underline;}
   <div class="cb-win hide" id="cbWin">
     <div class="cb-hdr">
       <div class="cb-hdr-ico">☀️</div>
-      <div><h3>SolarBot IA</h3><p>Asistente inteligente solar · GPT-4</p></div>
+      <div>
+        <h3>SolarBot IA</h3>
+        <p>Asistente inteligente solar · Gemini 1.5</p> 
+      </div>
       <div class="cb-online" title="En línea"></div>
     </div>
+    
     <div class="cb-msgs" id="cbMsgs">
       <div class="msg-b bot">¡Hola! Soy <strong>SolarBot</strong>, tu asistente de energía solar con Inteligencia Artificial. 🌞</div>
-      <div class="msg-b bot">Puedo ayudarte con precios, cálculo de ahorros, instalaciones, financiamiento, mantenimiento y mucho más. ¿Qué necesitas?</div>
+      <div class="msg-b bot">Puedo ayudarte con precios, cálculo de ahorros, instalaciones y más. ¿Qué necesitas saber hoy?</div>
     </div>
+    
     <div class="cb-inp">
       <input type="text" id="cbIn" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendMsg()">
       <button onclick="sendMsg()" title="Enviar">➤</button>
     </div>
   </div>
+  
   <button class="cb-toggle" id="cbBtn" onclick="toggleBot()" title="Chat SolarBot">💬</button>
 </div>
 
@@ -1146,24 +1190,6 @@ footer a:hover{text-decoration:underline;}
 
 <script>
 // ================================================================
-// OPENAI API KEY — reemplaza con tu key real
-// Obtén una en: https://platform.openai.com/api-keys
-// ================================================================
-const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY';
-
-const SYS_PROMPT = `Eres SolarBot, el asistente virtual de SolarMind, empresa líder en energía solar residencial en México.
-
-PRODUCTOS: Panel 450W ($3,500 MXN), Panel 550W Premium ($4,500), Inversor 5kW WiFi ($12,000), Inversor 10kW ($22,000), Batería 5kWh LiFePO4 ($28,000), Batería 10kWh ($45,000), Kit Montaje ($2,500), Cable Solar ($1,200).
-
-PLANES: Básico $45,000 MXN (4 paneles+inversor 2kW) | Hogar $95,000 (8 paneles+inversor 5kW+batería 5kWh) [MÁS POPULAR] | Premium $180,000 (16 paneles 550W+inversor 10kW+batería 20kWh+IoT 5 años mantenimiento).
-
-GARANTÍAS: Paneles 25 años | Inversores y baterías 10 años | Instalación 5 años.
-AHORRO TÍPICO: $1,400-$2,100 MXN/mes con 8 paneles. ROI: 4-6 años.
-CONTACTO: +52 (55) 1234-5678 | asesores@solarmind.mx | WhatsApp: +52 55 9876-5432.
-
-Responde SIEMPRE en español, de forma amigable, profesional y concisa. Usa emojis con moderación. Si te preguntan algo ajeno a energía solar, redirige educadamente.`;
-
-// ================================================================
 // DATA
 // ================================================================
 const PRODS = [
@@ -1181,8 +1207,8 @@ const PRODS = [
 // STATE
 // ================================================================
 let cart=[], curFilter='all', selSvc=null, selTime=null, selPay='card';
-let chatHistory=[{role:'system',content:SYS_PROMPT}];
 let energyTimer=null;
+
 
 // ================================================================
 // NAVIGATION
@@ -1463,31 +1489,64 @@ function setTab(tab,btn){
   document.querySelectorAll('.sni').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
+
+// Lógica para detectar el cambio de archivo en el input
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'avatarInput') {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const display = document.getElementById('userAvatarDisplay');
+        const icon = document.getElementById('avatarIcon');
+        if(display && icon) {
+          display.src = event.target.result; // Ponemos la foto cargada
+          display.style.display = 'block';   // Mostramos la imagen
+          icon.style.display = 'none';      // Ocultamos el 👤
+        }
+        // Opcional: Si tienes una foto mini en el header, se actualiza aquí
+        const navImg = document.querySelector('.nav-user img');
+        if(navImg) navImg.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+});
+
 function saveProfile(){
-  const n=document.getElementById('sN').value;
-  document.getElementById('avatarCirc').textContent=n?n[0].toUpperCase():'👤';
+  const n = document.getElementById('sN').value;
+  const icon = document.getElementById('avatarIcon');
+  const display = document.getElementById('userAvatarDisplay');
+  
+  // Si NO se ha subido una foto, entonces actualizamos el texto del círculo con la inicial
+  if(icon && (!display || display.style.display === 'none')) {
+    icon.textContent = n ? n[0].toUpperCase() : '👤';
+  }
+  
   showOK('Perfil guardado ✓','Tus datos han sido actualizados correctamente.');
 }
+
 function pickTheme(t,btn){
   btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.body.classList.remove('dark');
-  if(t==='dark')document.body.classList.add('dark');
+  if(t==='dark') document.body.classList.add('dark');
   notif('🎨 Tema cambiado','Apariencia: '+t,'in');
 }
+
 function pickAccent(c,n,btn){
   btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.documentElement.style.setProperty('--sol',c);
   notif('🎨 Color cambiado','Acento: '+n,'in');
 }
+
 function setFontSz(s,btn){
   btn.parentElement.querySelectorAll('.topt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.documentElement.style.fontSize=s;
   notif('🔡 Fuente ajustada','Tamaño: '+s,'in');
 }
-
 // ================================================================
 // CONTACT
 // ================================================================
@@ -1515,69 +1574,133 @@ function doLogout(){
 }
 
 // ================================================================
-// CHATBOT CON IA — OpenAI GPT-4o-mini
+// CHATBOT CON IA — GEMINI 1.5 FLASH (LIMPIO Y FUNCIONAL)
 // ================================================================
+
+// 1. CONFIGURACIÓN
+const GEMINI_API_KEY = "AIzaSyB32GiYje8vUPt4NbMXUli0jzsUlG4NSAw"; // ← REEMPLAZA CON TU KEY
+
+const SYS_PROMPT = `Eres SolarBot, el asistente virtual de SolarMind, empresa líder en energía solar residencial en México.
+
+PRODUCTOS: Panel 450W ($3,500 MXN), Panel 550W Premium ($4,500), Inversor 5kW WiFi ($12,000), Inversor 10kW ($22,000), Batería 5kWh LiFePO4 ($28,000), Batería 10kWh ($45,000), Kit Montaje ($2,500), Cable Solar ($1,200).
+
+PLANES: Básico $45,000 MXN (4 paneles+inversor 2kW) | Hogar $95,000 (8 paneles+inversor 5kW+batería 5kWh) [MÁS POPULAR] | Premium $180,000 (16 paneles 550W+inversor 10kW+batería 20kWh+IoT 5 años mantenimiento).
+
+GARANTÍAS: Paneles 25 años | Inversores y baterías 10 años | Instalación 5 años.
+AHORRO TÍPICO: $1,400-$2,100 MXN/mes con 8 paneles. ROI: 4-6 años.
+CONTACTO: +52 (55) 1234-5678 | asesores@solarmind.mx | WhatsApp: +52 55 9876-5432.
+
+Responde SIEMPRE en español, de forma amigable, profesional y concisa. Usa emojis con moderación. Si te preguntan algo ajeno a energía solar, redirige educadamente.`;
+
+// 2. HISTORIAL (VACÍO AL INICIO)
+let chatHistory = [];
+
+// 3. FUNCIONES
 function toggleBot(){
-  const w=document.getElementById('cbWin');
+  const w = document.getElementById('cbWin');
   w.classList.toggle('hide');
-  document.getElementById('cbBtn').textContent=w.classList.contains('hide')?'💬':'✕';
+  document.getElementById('cbBtn').textContent = w.classList.contains('hide') ? '💬' : '✕';
 }
-async function sendMsg(){
-  const inp=document.getElementById('cbIn');
-  const text=inp.value.trim();if(!text)return;
-  inp.value='';
-  appendMsg(text,'user');
-  chatHistory.push({role:'user',content:text});
-  const td=document.createElement('div');
-  td.className='typing-dots';td.id='typing';
-  td.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-  document.getElementById('cbMsgs').appendChild(td);
+
+async function sendMsg() {
+  const inp = document.getElementById('cbIn');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  inp.value = '';
+  appendMsg(text, 'user');
+  chatHistory.push({ role: 'user', parts: [{ text: text }] });
+
+  // Mostrar "escribiendo..."
+  const msgsDiv = document.getElementById('cbMsgs');
+  const typing = document.createElement('div');
+  typing.className = 'msg-b bot';
+  typing.id = 'typing';
+  typing.innerHTML = '<span class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+  msgsDiv.appendChild(typing);
   scrollChat();
-  try{
-    let reply;
-    if(OPENAI_API_KEY&&OPENAI_API_KEY!=='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'){
-      const res=await fetch('https://api.openai.com/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},
-        body:JSON.stringify({model:'gpt-4o-mini',messages:chatHistory,max_tokens:450,temperature:.7})
-      });
-      const data=await res.json();
-      if(data.error)throw new Error(data.error.message);
-      reply=data.choices[0].message.content;
-    }else{
-      await new Promise(r=>setTimeout(r,900+Math.random()*600));
-      reply=getFallback(text.toLowerCase());
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+    // Construir el contenido: primero el system prompt como context
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text: BOT_SYSTEM_PROMPT }]
+      },
+      {
+        role: 'model',
+        parts: [{ text: 'Entendido. Soy SolarBot, listo para ayudarte.' }]
+      },
+      ...chatHistory
+    ];
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: contents,
+        generationConfig: { 
+          temperature: 0.7, 
+          maxOutputTokens: 500 
+        }
+      })
+    });
+
+    const data = await response.json();
+    document.getElementById('typing')?.remove();
+
+    if (data.candidates?.length > 0 && data.candidates[0].content?.parts?.length > 0) {
+      const reply = data.candidates[0].content.parts[0].text;
+      appendMsg(reply, 'bot');
+      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    } else if (data.error) {
+      throw new Error(`API: ${data.error.message}`);
+    } else {
+      throw new Error('Sin respuesta');
     }
-    chatHistory.push({role:'assistant',content:reply});
+
+  } catch (error) {
     document.getElementById('typing')?.remove();
-    appendMsg(reply,'bot');
-  }catch(err){
-    document.getElementById('typing')?.remove();
-    appendMsg('Lo siento, hubo un error de conexión. Contáctanos al +52 (55) 1234-5678 o WhatsApp. 😊','bot');
+    console.error('Error Gemini:', error);
+    const fallback = getFallback(text.toLowerCase());
+    appendMsg(fallback, 'bot');
   }
 }
-function appendMsg(text,role){
-  const m=document.getElementById('cbMsgs');
-  const d=document.createElement('div');
-  d.className='msg-b '+role;d.textContent=text;
-  m.appendChild(d);scrollChat();
+
+function appendMsg(text, role) {
+  const m = document.getElementById('cbMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg-b ' + role;
+  d.innerHTML = text.replace(/\n/g, '<br>');
+  m.appendChild(d);
+  scrollChat();
 }
-function scrollChat(){const m=document.getElementById('cbMsgs');m.scrollTop=m.scrollHeight;}
-function getFallback(msg){
-  if(msg.includes('precio')||msg.includes('cost'))return'Los paneles van desde $3,500 MXN. Los planes completos desde $45,000 hasta $180,000 MXN con instalación incluida. ☀️';
-  if(msg.includes('panel'))return'Tenemos paneles monocristalinos 450W ($3,500) y bifaciales 550W ($4,500). Ambos con garantía 25 años y certificación IEC. 🌞';
-  if(msg.includes('bater'))return'Baterías LiFePO4: 5kWh ($28,000) y 10kWh ($45,000). Con BMS integrado y 6,000+ ciclos de vida útil. 🔋';
-  if(msg.includes('invers'))return'Inversores híbridos: 5kW WiFi ($12,000) y 10kW WiFi ($22,000). Conectan paneles, baterías y red con monitoreo en tiempo real. ⚡';
-  if(msg.includes('ahorro')||msg.includes('roi'))return'Con 8 paneles ahorras entre $1,400 y $2,100 MXN al mes. El retorno de inversión es de 4-6 años. ¡Usa nuestra calculadora ROI en la Tienda! 💰';
-  if(msg.includes('plan')||msg.includes('instalac'))return'3 planes todo incluido:\n🌱 Básico $45,000 (4 paneles)\n⭐ Hogar $95,000 (8 paneles + batería) [más popular]\n🏆 Premium $180,000 (16 paneles + IoT)';
-  if(msg.includes('cita')||msg.includes('servicio')||msg.includes('técnico'))return'Agenda tu cita técnica en la sección Tienda. Tenemos disponibilidad Lun-Sáb 9am-5pm. Nuestros técnicos van a tu domicilio. 📅';
-  if(msg.includes('contact')||msg.includes('teléfono')||msg.includes('correo'))return'📞 +52 (55) 1234-5678\n📧 asesores@solarmind.mx\n💬 WhatsApp: +52 55 9876-5432\nHorario: Lun-Vie 9am-6pm';
-  if(msg.includes('garantia')||msg.includes('garantía'))return'✅ Paneles: 25 años producción + 12 años producto\n✅ Inversores y baterías: 10 años\n✅ Instalación: 5 años\n✅ Servicio técnico: respuesta 24h';
-  if(msg.includes('financiam')||msg.includes('crédito')||msg.includes('pago'))return'Ofrecemos opciones de financiamiento: Meses sin intereses con tarjeta bancaria, crédito verde BANOBRAS, y convenio con principales bancos. ¡Consulta con un asesor! 💳';
-  if(msg.includes('hola')||msg.includes('buenas')||msg.includes('hi')||msg.includes('buenos'))return'¡Hola! 👋 Bienvenido a SolarMind. Soy SolarBot y puedo ayudarte con todo sobre energía solar. ¿Qué necesitas? 🌞';
-  if(msg.includes('gracias'))return'¡De nada! 😊 Es un placer ayudarte. ¿Hay algo más en lo que pueda orientarte sobre tu proyecto solar?';
-  if(msg.includes('mantenimiento'))return'Ofrecemos mantenimiento preventivo anual incluido en el Plan Hogar y Premium. También puedes agendar un servicio desde la sección Tienda. Los técnicos van a tu domicilio. 🔧';
-  return'Gracias por tu consulta. Para una asesoría personalizada y detallada, contáctanos al +52 (55) 1234-5678 o WhatsApp +52 55 9876-5432. Nuestros expertos solares están listos para ayudarte. ☀️';
+
+function scrollChat() {
+  const m = document.getElementById('cbMsgs');
+  m.scrollTop = m.scrollHeight;
+}
+
+function getFallback(msg) {
+  const responses = {
+    'precio': '💰 Los paneles van desde $3,500 MXN. Planes completos de $45,000 a $180,000 MXN. ☀️',
+    'panel': '☀️ Paneles 450W ($3,500) y 550W bifacial ($4,500). Garantía 25 años. IEC certificados.',
+    'bater': '🔋 LiFePO4: 5kWh ($28,000) y 10kWh ($45,000). 6,000+ ciclos. BMS integrado.',
+    'invers': '⚡ Híbridos: 5kW ($12,000) y 10kW ($22,000). WiFi + monitoreo en tiempo real.',
+    'ahorro': '💰 8 paneles = $1,400-$2,100 MXN/mes. ROI: 4-6 años. ¡Calcula con nuestra herramienta!',
+    'plan': '🌱 Básico $45k | ⭐ Hogar $95k | 🏆 Premium $180k — Todo incluido.',
+    'cita': '📅 Agenda tu servicio en Tienda. Lun-Sáb 9am-5pm. Técnicos certificados a domicilio.',
+    'contact': '📞 +52 (55) 1234-5678 | 📧 asesores@solarmind.mx | 💬 WhatsApp +52 55 9876-5432',
+    'hola': '¡Hola! 👋 Soy SolarBot. ¿Qué quieres saber de energía solar? ☀️',
+    'default': '✅ Gracias por tu pregunta. ¡Contáctanos al +52 (55) 1234-5678 para asesoría personalizada!'
+  };
+
+  for (const [key, value] of Object.entries(responses)) {
+    if (key !== 'default' && msg.includes(key)) return value;
+  }
+  return responses.default;
 }
 
 // ================================================================
