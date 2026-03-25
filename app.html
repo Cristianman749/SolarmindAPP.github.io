@@ -1621,13 +1621,13 @@ async function sendMsg() {
   scrollChat();
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AIzaSyB32GiYje8vUPt4NbMXUli0jzsUlG4NSAw}`;
 
     // Construir el contenido: primero el system prompt como context
     const contents = [
       {
         role: 'user',
-        parts: [{ text: BOT_SYSTEM_PROMPT }]
+        parts: [{ text: SYS_PROMPT }]
       },
       {
         role: 'model',
