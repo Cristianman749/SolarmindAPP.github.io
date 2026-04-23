@@ -566,6 +566,33 @@ footer a:hover{text-decoration:underline;}
   .ods-inner,.contact-grid,.roi-grid,.settings-layout{grid-template-columns:1fr;}
   .cart-layout{grid-template-columns:1fr;}
 }
+@media(max-width:1024px){
+  /* VISION - Centra tarjeta Impacto */
+  .sec > div:nth-child(1) .vision-card:nth-child(3){
+    grid-column: 1 / -1;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  /* COMMUNITY - Centra todas las tarjetas */
+  .comm-grid{
+    justify-items: center;
+  }
+  
+  /* PLANS - Centra Plan Premium */
+  .plans-grid > .plan:nth-child(3){
+    grid-column: 1 / -1;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  /* SERVICES - Centra los 6 servicios */
+  .svc-grid{
+    justify-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
 @media(max-width:768px){
   nav{display:none;}
   .mob-nav{display:flex;}
@@ -1189,7 +1216,7 @@ footer a:hover{text-decoration:underline;}
       <div class="cb-hdr-ico">☀️</div>
       <div>
         <h3>SolarBot IA</h3>
-        <p>Asistente inteligente solar · Gemini 1.5</p> 
+        <p>Asistente inteligente solar · </p> 
       </div>
       <div class="cb-online" title="En línea"></div>
     </div>
