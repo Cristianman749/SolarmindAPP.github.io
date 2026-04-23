@@ -562,46 +562,170 @@ footer a:hover{text-decoration:underline;}
 /* ============================================================
    RESPONSIVE
 ============================================================ */
-@media(max-width:1100px){
+/* ============================================================
+   VISION GRID
+============================================================ */
+.vision-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:2rem;
+}
+
+/* iPad 11" portrait: 834px → 2 columnas, 3ª tarjeta centrada */
+@media(max-width:900px){
+  .vision-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .vision-grid .vision-card:last-child{
+    grid-column:1 / -1;
+    max-width:440px;
+    margin-left:auto;
+    margin-right:auto;
+    width:100%;
+  }
+}
+@media(max-width:600px){
+  .vision-grid{
+    grid-template-columns:1fr;
+  }
+  .vision-grid .vision-card:last-child{
+    grid-column:auto;
+    max-width:100%;
+  }
+}
+
+/* ============================================================
+   COMMUNITY GRID
+============================================================ */
+.comm-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(195px,1fr));
+  gap:1.5rem;
+  justify-items:center;
+}
+
+/* iPad 11" portrait: 3 columnas, las 2 últimas centradas */
+@media(max-width:900px){
+  .comm-grid{
+    grid-template-columns:repeat(3,1fr);
+    justify-items:center;
+  }
+  .comm-card{width:100%;}
+  /* Las 2 últimas tarjetas quedan en la fila de abajo: centra el bloque */
+  .comm-grid .comm-card:nth-child(4),
+  .comm-grid .comm-card:nth-child(5){
+    grid-column:auto;
+  }
+  /* Forzar que las 2 últimas se centren juntas */
+  .comm-grid{
+    justify-content:center;
+  }
+}
+@media(max-width:560px){
+  .comm-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .comm-grid .comm-card:last-child:nth-child(odd){
+    grid-column:1 / -1;
+    max-width:220px;
+  }
+}
+
+/* ============================================================
+   PLANS GRID
+============================================================ */
+.plans-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2rem;
+}
+
+/* iPad 11" portrait: 2 columnas, Plan Premium centrado */
+@media(max-width:900px){
+  .plans-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .plans-grid .plan:last-child{
+    grid-column:1 / -1;
+    max-width:440px;
+    margin-left:auto;
+    margin-right:auto;
+    width:100%;
+  }
+}
+@media(max-width:600px){
+  .plans-grid{
+    grid-template-columns:1fr;
+  }
+  .plans-grid .plan:last-child{
+    grid-column:auto;
+    max-width:100%;
+  }
+}
+
+/* ============================================================
+   SERVICES GRID
+============================================================ */
+.svc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:1rem;
+  justify-items:center;
+  justify-content:center;
+}
+
+/* iPad 11" portrait: 3 columnas centradas */
+@media(max-width:900px){
+  .svc-grid{
+    grid-template-columns:repeat(3,1fr);
+    max-width:520px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .svc{width:100%;}
+}
+@media(max-width:560px){
+  .svc-grid{
+    grid-template-columns:repeat(2,1fr);
+    max-width:340px;
+  }
+}
+
+/* ============================================================
+   GENERAL RESPONSIVE — iPad 11" portrait (834px) y móvil
+============================================================ */
+@media(max-width:900px){
   .ods-inner,.contact-grid,.roi-grid,.settings-layout{grid-template-columns:1fr;}
   .cart-layout{grid-template-columns:1fr;}
+  .sec{padding:0 1.5rem;margin:3.5rem auto;}
+  .hero{padding:4.5rem 1.5rem 4rem;}
+  .roi-box{padding:2.5rem 1.5rem;}
+  .apt-box{padding:2rem 1.5rem;}
+  .hero-stats{gap:1rem;}
+  .hstat{padding:1.2rem 1.5rem;}
+  .hstat h3{font-size:2.2rem;}
+  .sh h2{font-size:2.2rem;}
+  .cb-win{width:calc(100vw - 2rem);right:1rem;}
+  .contact-box{padding:2.5rem 1.75rem;}
+  .fr{grid-template-columns:1fr;}
 }
-@media(max-width:1024px){
-  /* VISION - Centra tarjeta Impacto */
-  .sec > div:nth-child(1) .vision-card:nth-child(3){
-    grid-column: 1 / -1;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  
-  /* COMMUNITY - Centra todas las tarjetas */
-  .comm-grid{
-    justify-items: center;
-  }
-  
-  /* PLANS - Centra Plan Premium */
-  .plans-grid > .plan:nth-child(3){
-    grid-column: 1 / -1;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  
-  /* SERVICES - Centra los 6 servicios */
-  .svc-grid{
-    justify-items: center;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-}
-@media(max-width:768px){
+
+/* NAV: portrait → nav inferior | landscape → nav superior */
+@media(max-width:900px) and (orientation:portrait){
   nav{display:none;}
   .mob-nav{display:flex;}
-  .hero h1{font-size:2.2rem;}
-  .sh h2{font-size:1.9rem;}
-  .fr{grid-template-columns:1fr;}
-  .cb-win{width:calc(100vw - 2rem);right:1rem;}
-  .contact-box{padding:2rem 1.5rem;}
   body{padding-bottom:70px;}
+}
+@media(max-width:900px) and (orientation:landscape){
+  nav{display:flex;}
+  .mob-nav{display:none;}
+  body{padding-bottom:0;}
+}
+/* Móviles pequeños siempre nav inferior */
+@media(max-width:600px){
+  nav{display:none !important;}
+  .mob-nav{display:flex !important;}
+  body{padding-bottom:70px !important;}
 }
 .msg-b {
   max-width: 84%;
@@ -676,7 +800,7 @@ footer a:hover{text-decoration:underline;}
   <!-- VISION -->
   <div class="sec">
     <div class="sh"><h2>Conoce nuestra <span class="hl">visión</span></h2><p>Lideramos la transición energética en Latinoamérica</p></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;">
+    <div class="vision-grid">
       <div class="vision-card">
         <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=500&h=220&fit=crop" alt="Vision">
         <div class="vcb"><div class="vcb-ico" style="background:#fff8e1">👁️</div><h3>Nuestra Visión</h3><p>Ser la empresa líder en energía solar residencial, democratizando el acceso a energía limpia y asequible para todos los hogares de Latinoamérica.</p></div>
@@ -1895,3 +2019,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
